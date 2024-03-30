@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "penguinator-app"
+resolve_s3 = true
+s3_prefix = "penguinator-app"
+region = "ap-northeast-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_NAMED_IAM"
+disable_rollback = true
+image_repositories = []

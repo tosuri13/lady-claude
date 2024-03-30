@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 128
+
+Resources:
+  PenguinatorApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: penguinator-api
+      OpenApiVersion: 3.0.0
+      StageName: v1
+
+  PenguinatorApiPostFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Events:
+        PenguinatorApiEvents:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId: !Ref PenguinatorApiGateway
+      FunctionName: penguinator-api-post
+      Handler: penguinator.function.api.post.function.handler
+      Role: !GetAtt PenguinatorFunctionRole.Arn
+      Runtime: python3.10
+
+  PenguinatorFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: penguinator-function-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - bedrock:InvokeModel
+                Resource: "*"
+              - Effect: Allow
+                Action: 
+                  - ssm:GetParameter
+                Resource: "*"
+      RoleName: penguinator-function-role
