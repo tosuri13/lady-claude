@@ -14,6 +14,11 @@ Resources:
       OpenApiVersion: 3.0.0
       StageName: v1
 
+  PenguinatorReplyServiceTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: penguinator-reply-service-topic
+
   PenguinatorApiPostFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -25,8 +30,25 @@ Resources:
             Path: /
             Method: POST
             RestApiId: !Ref PenguinatorApiGateway
-      FunctionName: penguinator-api-post
+      FunctionName: penguinator-api-post-function
       Handler: penguinator.function.api.post.function.handler
+      Role: !GetAtt PenguinatorFunctionRole.Arn
+      Runtime: python3.10
+
+  PenguinatorWorkerReplyServiceAskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Events:
+        PenguinatorSnsEvents:
+          Type: SNS
+          Properties:
+            FilterPolicy:
+              command:
+                - ask
+            Topic: !Ref PenguinatorReplyServiceTopic
+      FunctionName: penguinator-worker-reply-service-ask-function
+      Handler: penguinator.function.worker.reply_service.ask.function.handler
       Role: !GetAtt PenguinatorFunctionRole.Arn
       Runtime: python3.10
 
@@ -48,9 +70,15 @@ Resources:
               - Effect: Allow
                 Action: 
                   - bedrock:InvokeModel
-                Resource: "*"
-              - Effect: Allow
-                Action: 
+                  - sns:Publish
+                  - sns:Subscribe
                   - ssm:GetParameter
                 Resource: "*"
       RoleName: penguinator-function-role
+
+  PenguinatorReplyServiceTopicArnParameter:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Name: /PENGUINATOR/REPLY_SERVICE_TOPIC_ARN
+      Type: String
+      Value: !Ref PenguinatorReplyServiceTopic

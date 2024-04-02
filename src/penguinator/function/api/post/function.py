@@ -1,20 +1,12 @@
 import json
 
-from enum import Enum
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
+from penguinator.common.aws.sns import publish_message
 from penguinator.common.aws.ssm import get_parameter
-
-
-class InteractionType(Enum):
-    PING = 1
-    APPLICATION_COMMAND = 2
-
-
-class InteractionResponseType(Enum):
-    PONG = 1
-    CHANNEL_MESSAGE_WITH_SOURCE = 4
+from penguinator.common.event.discord import InteractionType, InteractionResponseType
+from penguinator.common.event.penguinator import PenguinatorCommand
 
 
 def handler(event: dict, context: dict) -> dict:
@@ -28,6 +20,11 @@ def handler(event: dict, context: dict) -> dict:
 
         request = json.loads(event["body"])
         interaction_type = InteractionType(request["type"])
+
+        _publish_to_replyservice(
+            message=json.dumps(request),
+            command=PenguinatorCommand(request["data"]["name"]),
+        )
 
         return {
             "statusCode": 200,
@@ -70,7 +67,20 @@ def _handle_interaction(interaction_type: InteractionType) -> dict:
         case InteractionType.APPLICATION_COMMAND:
             return {
                 "type": InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE.value,
-                "data": {
-                    "content": "Hello!!",
-                },
             }
+
+
+def _publish_to_replyservice(message: str, command: PenguinatorCommand) -> None:
+
+    publish_message(
+        topic_arn=get_parameter(key="/PENGUINATOR/REPLY_SERVICE_TOPIC_ARN"),
+        message=message,
+        message_attributes={
+            "command": {
+                "DataType": "String",
+                "StringValue": command.value,
+            }
+        },
+    )
+
+    return None
