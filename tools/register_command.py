@@ -3,32 +3,39 @@ import requests
 
 from src.penguinator.common.aws.ssm import get_parameter
 
+APPLICATION_ID = get_parameter(key="/PENGUINATOR/DISCORD_APPLICATION_ID")
+GUILD_ID = get_parameter(key="/PENGUINATOR/DISCORD_GUILD_ID")
 
-def main():
-    application_id = get_parameter("/PENGUINATOR/DISCORD_APPLICATION_ID")
-    guild_id = get_parameter("/PENGUINATOR/DISCORD_GUILD_ID")
+AUTH_HEADERS = {
+    "Authorization": f"Bot {get_parameter(key='/PENGUINATOR/DISCORD_BOT_TOKEN')}",
+    "Content-Type": "application/json",
+}
 
-    endpoint_url = f"https://discord.com/api/v10/applications/{application_id}/guilds/{guild_id}/commands"
-    headers = {
-        "Authorization": f'Bot {get_parameter("/PENGUINATOR/DISCORD_BOT_TOKEN")}',
-        "Content-Type": "application/json",
-    }
+
+if __name__ == "__main__":
+    response = requests.get(
+        url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/guilds/{GUILD_ID}/commands",
+        headers=AUTH_HEADERS,
+    )
+
+    for command in response.json():
+        command_id = command["id"]
+
+        requests.delete(
+            url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/guilds/{GUILD_ID}/commands/{command_id}",
+            headers=AUTH_HEADERS,
+        )
 
     commands = [
         {
-            "name": "hello",
-            "description": "Hello Discord Slash Commands!",
+            "name": "ask",
+            "description": "Ask something...",
         }
     ]
 
     for command in commands:
         response = requests.post(
-            url=endpoint_url,
-            headers=headers,
+            url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/guilds/{GUILD_ID}/commands",
+            headers=AUTH_HEADERS,
             data=json.dumps(command),
         )
-        print(response)
-
-
-if __name__ == "__main__":
-    main()

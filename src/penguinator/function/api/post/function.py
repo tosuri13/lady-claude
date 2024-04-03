@@ -66,12 +66,13 @@ def _handle_interaction(interaction_type: InteractionType) -> dict:
             }
         case InteractionType.APPLICATION_COMMAND:
             return {
-                "type": InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE.value,
+                "type": InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value,
             }
+        case _:
+            raise ValueError()
 
 
 def _publish_to_replyservice(message: str, command: PenguinatorCommand) -> None:
-
     publish_message(
         topic_arn=get_parameter(key="/PENGUINATOR/REPLY_SERVICE_TOPIC_ARN"),
         message=message,

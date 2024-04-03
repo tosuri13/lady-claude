@@ -8,4 +8,4 @@ class InteractionType(Enum):
 
 class InteractionResponseType(Enum):
     PONG = 1
-    CHANNEL_MESSAGE_WITH_SOURCE = 4
+    DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5

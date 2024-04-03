@@ -32,6 +32,7 @@ Resources:
             RestApiId: !Ref PenguinatorApiGateway
       FunctionName: penguinator-api-post-function
       Handler: penguinator.function.api.post.function.handler
+      MemorySize: 1024
       Role: !GetAtt PenguinatorFunctionRole.Arn
       Runtime: python3.10
 
