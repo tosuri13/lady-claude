@@ -29,7 +29,15 @@ if __name__ == "__main__":
     commands = [
         {
             "name": "ask",
-            "description": "Ask something...",
+            "description": "Claudeお嬢様に質問してみよう!!",
+            "options": [
+                {
+                    "type": 3,
+                    "name": "question",
+                    "description": "質問したい内容を書いてね!!",
+                    "required": True,
+                }
+            ],
         }
     ]
 
