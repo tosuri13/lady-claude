@@ -1,9 +1,9 @@
 import json
 import requests
 
-from penguinator.common.aws.bedrock import get_text
-from penguinator.common.aws.ssm import get_parameter
-from penguinator.common.event.penguinator import PenguinatorCommand
+from lady_claude.common.aws.bedrock import get_text
+from lady_claude.common.aws.ssm import get_parameter
+from lady_claude.common.event.lady_claude import LadyClaudeCommand
 
 
 def handler(event: dict, context: dict) -> None:
@@ -13,7 +13,7 @@ def handler(event: dict, context: dict) -> None:
             message_attributes = record["Sns"]["MessageAttributes"]
             command = message_attributes["command"]["Value"]
 
-            if command != PenguinatorCommand.ASK.value:
+            if command != LadyClaudeCommand.ASK.value:
                 raise ValueError(
                     f"This Lambda only supports '/ask' [command: /{command}]"
                 )
@@ -59,7 +59,7 @@ def _handle_request(request: dict) -> str:
 
 
 def _respond_discord(content: str, token: str) -> None:
-    application_id = get_parameter(key="/PENGUINATOR/DISCORD_APPLICATION_ID")
+    application_id = get_parameter(key="/LADY_CLAUDE/DISCORD_APPLICATION_ID")
 
     requests.post(
         url=f"https://discord.com/api/v10/webhooks/{application_id}/{token}",
@@ -69,7 +69,7 @@ def _respond_discord(content: str, token: str) -> None:
             }
         ),
         headers={
-            "Authorization": f"Bot {get_parameter(key='/PENGUINATOR/DISCORD_BOT_TOKEN')}",
+            "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD_BOT_TOKEN')}",
             "Content-Type": "application/json",
         },
     )

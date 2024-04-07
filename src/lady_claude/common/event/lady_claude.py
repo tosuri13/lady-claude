@@ -1,5 +1,5 @@
 from enum import Enum
 
 
-class PenguinatorCommand(Enum):
+class LadyClaudeCommand(Enum):
     ASK = "ask"

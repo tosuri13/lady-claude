@@ -3,10 +3,10 @@ import json
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
-from penguinator.common.aws.sns import publish_message
-from penguinator.common.aws.ssm import get_parameter
-from penguinator.common.event.discord import InteractionType, InteractionResponseType
-from penguinator.common.event.penguinator import PenguinatorCommand
+from lady_claude.common.aws.sns import publish_message
+from lady_claude.common.aws.ssm import get_parameter
+from lady_claude.common.event.discord import InteractionType, InteractionResponseType
+from lady_claude.common.event.lady_claude import LadyClaudeCommand
 
 
 def handler(event: dict, context: dict) -> dict:
@@ -21,10 +21,11 @@ def handler(event: dict, context: dict) -> dict:
         request = json.loads(event["body"])
         interaction_type = InteractionType(request["type"])
 
-        _publish_to_replyservice(
-            message=json.dumps(request),
-            command=PenguinatorCommand(request["data"]["name"]),
-        )
+        if "name" in request["data"]:
+            _publish_to_replyservice(
+                message=json.dumps(request),
+                command=LadyClaudeCommand(request["data"]["name"]),
+            )
 
         return {
             "statusCode": 200,
@@ -46,7 +47,7 @@ def _validate(headers: dict, raw_body: str) -> bool:
     signature = bytes.fromhex(headers["x-signature-ed25519"])
 
     verify_key = VerifyKey(
-        bytes.fromhex(get_parameter(key="/PENGUINATOR/DISCORD_PUBLIC_KEY"))
+        bytes.fromhex(get_parameter(key="/LADY_CLAUDE/DISCORD_PUBLIC_KEY"))
     )
 
     try:
@@ -72,9 +73,9 @@ def _handle_interaction(interaction_type: InteractionType) -> dict:
             raise ValueError()
 
 
-def _publish_to_replyservice(message: str, command: PenguinatorCommand) -> None:
+def _publish_to_replyservice(message: str, command: LadyClaudeCommand) -> None:
     publish_message(
-        topic_arn=get_parameter(key="/PENGUINATOR/REPLY_SERVICE_TOPIC_ARN"),
+        topic_arn=get_parameter(key="/LADY_CLAUDE/REPLY_SERVICE_TOPIC_ARN"),
         message=message,
         message_attributes={
             "command": {

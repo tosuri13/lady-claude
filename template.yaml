@@ -7,53 +7,53 @@ Globals:
     MemorySize: 128
 
 Resources:
-  PenguinatorApiGateway:
+  LadyClaudeApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      Name: penguinator-api
+      Name: lady-claude-api
       OpenApiVersion: 3.0.0
       StageName: v1
 
-  PenguinatorReplyServiceTopic:
+  LadyClaudeReplyServiceTopic:
     Type: AWS::SNS::Topic
     Properties:
-      DisplayName: penguinator-reply-service-topic
+      DisplayName: lady-claude-reply-service-topic
 
-  PenguinatorApiPostFunction:
+  LadyClaudeApiPostFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
       Events:
-        PenguinatorApiEvents:
+        LadyClaudeApiEvents:
           Type: Api
           Properties:
             Path: /
             Method: POST
-            RestApiId: !Ref PenguinatorApiGateway
-      FunctionName: penguinator-api-post-function
-      Handler: penguinator.function.api.post.function.handler
+            RestApiId: !Ref LadyClaudeApiGateway
+      FunctionName: lady-claude-api-post-function
+      Handler: lady_claude.function.api.post.function.handler
       MemorySize: 512
-      Role: !GetAtt PenguinatorFunctionRole.Arn
+      Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.10
 
-  PenguinatorWorkerReplyServiceAskFunction:
+  LadyClaudeWorkerReplyServiceAskFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
       Events:
-        PenguinatorSnsEvents:
+        LadyClaudeSnsEvents:
           Type: SNS
           Properties:
             FilterPolicy:
               command:
                 - ask
-            Topic: !Ref PenguinatorReplyServiceTopic
-      FunctionName: penguinator-worker-reply-service-ask-function
-      Handler: penguinator.function.worker.reply_service.ask.function.handler
-      Role: !GetAtt PenguinatorFunctionRole.Arn
+            Topic: !Ref LadyClaudeReplyServiceTopic
+      FunctionName: lady-claude-worker-reply-service-ask-function
+      Handler: lady_claude.function.worker.reply_service.ask.function.handler
+      Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.10
 
-  PenguinatorFunctionRole:
+  LadyClaudeFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -64,7 +64,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: penguinator-function-policy
+        - PolicyName: lady-claude-function-policy
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -75,11 +75,11 @@ Resources:
                   - sns:Subscribe
                   - ssm:GetParameter
                 Resource: "*"
-      RoleName: penguinator-function-role
+      RoleName: lady-claude-function-role
 
-  PenguinatorReplyServiceTopicArnParameter:
+  LadyClaudeReplyServiceTopicArnParameter:
     Type: 'AWS::SSM::Parameter'
     Properties:
-      Name: /PENGUINATOR/REPLY_SERVICE_TOPIC_ARN
+      Name: /LADY_CLAUDE/REPLY_SERVICE_TOPIC_ARN
       Type: String
-      Value: !Ref PenguinatorReplyServiceTopic
+      Value: !Ref LadyClaudeReplyServiceTopic

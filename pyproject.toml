@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "penguinator"
+name = "lady_claude"
 version = "0.1.0"
 description = ""
 authors = ["UniUrchin <85057870+UniUrchin@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "src"}, {include = "penguinator", from = "src"}]
+packages = [{include = "src"}, {include = "lady_claude", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

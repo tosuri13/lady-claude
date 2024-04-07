@@ -1,13 +1,13 @@
 import json
 import requests
 
-from src.penguinator.common.aws.ssm import get_parameter
+from src.lady_claude.common.aws.ssm import get_parameter
 
-APPLICATION_ID = get_parameter(key="/PENGUINATOR/DISCORD_APPLICATION_ID")
-GUILD_ID = get_parameter(key="/PENGUINATOR/DISCORD_GUILD_ID")
+APPLICATION_ID = get_parameter(key="/LADY_CLAUDE/DISCORD_APPLICATION_ID")
+GUILD_ID = get_parameter(key="/LADY_CLAUDE/DISCORD_GUILD_ID")
 
 AUTH_HEADERS = {
-    "Authorization": f"Bot {get_parameter(key='/PENGUINATOR/DISCORD_BOT_TOKEN')}",
+    "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD_BOT_TOKEN')}",
     "Content-Type": "application/json",
 }
 

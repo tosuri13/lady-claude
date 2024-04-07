@@ -1,8 +1,8 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "penguinator-app"
+stack_name = "lady-claude-app"
 s3_bucket = "uniurchin-sam-artifact"
-s3_prefix = "penguinator-app"
+s3_prefix = "lady-claude-app"
 region = "ap-northeast-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_NAMED_IAM"
