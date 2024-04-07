@@ -21,7 +21,7 @@
 
 **Lady Claude**(Claudeお嬢様)は、AWS上で動作するサーバレスのDiscord Botです。
 
-Botとしての回答の生成にAmazon Bedrockの**Claude 3 Haiku**を使用しており、さながらお嬢様のように回答してくれます。
+Botとしての回答の生成にAmazon Bedrockの**Claude 3 Sonnet**を使用しており、さながらお嬢様のように回答してくれます。
 
 <br>
 

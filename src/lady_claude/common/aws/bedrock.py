@@ -4,7 +4,7 @@ import json
 
 def get_text(
     message: str,
-    model_id: str = "anthropic.claude-3-haiku-20240307-v1:0",
+    model_id: str = "anthropic.claude-3-sonnet-20240229-v1:0",
     system_message: str = "",
 ) -> str:
     bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
