@@ -27,7 +27,7 @@ def get_text(
                     }
                 ],
                 "system": system_message,
-                "temperature": 0.2,
+                "temperature": 0.1,
             }
         ),
     )
