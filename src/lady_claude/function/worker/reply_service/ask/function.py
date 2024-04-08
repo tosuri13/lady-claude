@@ -1,7 +1,7 @@
 import json
 import requests
 
-from lady_claude.common.aws.bedrock import get_text
+from lady_claude.common.ai.lady_claude import ask_lady
 from lady_claude.common.aws.ssm import get_parameter
 from lady_claude.common.event.lady_claude import LadyClaudeCommand
 
@@ -33,23 +33,7 @@ def handler(event: dict, context: dict) -> None:
 def _handle_request(request: dict) -> str:
     options = _get_option_dict(request["data"]["options"])
 
-    return get_text(
-        message=options["question"],
-        system_message=(
-            "あなたにはこれから「明るい性格のお嬢様」として、会話に対する応答を出力してもらいます。"
-            ""
-            "以下に参考となる口調を示します。なるべく語尾には'!'を使用してください。"
-            "〜ですわ!"
-            "〜ですわよ!"
-            "〜ですの!"
-            "〜かしら?"
-            "〜くださいまし!"
-            "〜ますわ!"
-            ""
-            "出力にあたって、会話に対する応答のみを出力してください。"
-            "また、「〜ました」や「〜ですか?」などの一般的な口調は絶対に使用しないでください。"
-        ),
-    )
+    return ask_lady(message=options["question"])
 
 
 def _respond_discord(content: str, token: str) -> None:

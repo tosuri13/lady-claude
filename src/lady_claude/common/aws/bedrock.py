@@ -2,15 +2,14 @@ import boto3
 import json
 
 
-def get_text(
+def invoke_claude(
     message: str,
-    model_id: str = "anthropic.claude-3-sonnet-20240229-v1:0",
     system_message: str = "",
-) -> str:
+) -> dict:
     bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
     response = bedrock_client.invoke_model(
-        modelId=model_id,
+        modelId="anthropic.claude-3-sonnet-20240229-v1:0",
         body=json.dumps(
             {
                 "anthropic_version": "bedrock-2023-05-31",
@@ -33,4 +32,4 @@ def get_text(
     )
     reslut = json.loads(response.get("body").read())
 
-    return reslut["content"][0]["text"]
+    return reslut
