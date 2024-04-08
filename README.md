@@ -13,7 +13,7 @@
 <div align="center">
   <blockquote>
   ごきげんよう!!<br>
-  そうですわ!!素敵な日差しの中、お庭でお茶を嗜むのはいかがかしら?<br>
+  そうですわ!!素敵な日差しの中、お庭でお茶でもいかがかしら?<br>
   </blockquote>
 </div>
 
@@ -26,7 +26,7 @@ Botとしての回答の生成にAmazon Bedrockの**Claude 3 Sonnet**を使用�
 <br>
 
 <div align="center">
-  <img width="480px" src="./images/aws_diagram.png" />
+  <img width="640px" src="./images/aws_diagram.png" />
 </div>
 
 ## 🛠️ Develop
