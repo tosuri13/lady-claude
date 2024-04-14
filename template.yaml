@@ -80,6 +80,6 @@ Resources:
   LadyClaudeReplyServiceTopicArnParameter:
     Type: 'AWS::SSM::Parameter'
     Properties:
-      Name: /LADY_CLAUDE/REPLY_SERVICE_TOPIC_ARN
+      Name: /LADY_CLAUDE/REPLY_SERVICE/TOPIC_ARN
       Type: String
       Value: !Ref LadyClaudeReplyServiceTopic

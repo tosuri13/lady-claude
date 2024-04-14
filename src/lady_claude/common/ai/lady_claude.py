@@ -1,4 +1,3 @@
-import math
 import random
 
 from lady_claude.common.aws.bedrock import invoke_claude

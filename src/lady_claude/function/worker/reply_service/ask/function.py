@@ -37,7 +37,7 @@ def _handle_request(request: dict) -> str:
 
 
 def _respond_discord(content: str, token: str) -> None:
-    application_id = get_parameter(key="/LADY_CLAUDE/DISCORD_APPLICATION_ID")
+    application_id = get_parameter(key="/LADY_CLAUDE/DISCORD/APPLICATION_ID")
 
     requests.post(
         url=f"https://discord.com/api/v10/webhooks/{application_id}/{token}",
@@ -47,7 +47,7 @@ def _respond_discord(content: str, token: str) -> None:
             }
         ),
         headers={
-            "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD_BOT_TOKEN')}",
+            "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD/BOT_TOKEN')}",
             "Content-Type": "application/json",
         },
     )

@@ -47,7 +47,7 @@ def _validate(headers: dict, raw_body: str) -> bool:
     signature = bytes.fromhex(headers["x-signature-ed25519"])
 
     verify_key = VerifyKey(
-        bytes.fromhex(get_parameter(key="/LADY_CLAUDE/DISCORD_PUBLIC_KEY"))
+        bytes.fromhex(get_parameter(key="/LADY_CLAUDE/DISCORD/PUBLIC_KEY"))
     )
 
     try:
@@ -75,7 +75,7 @@ def _handle_interaction(interaction_type: InteractionType) -> dict:
 
 def _publish_to_replyservice(message: str, command: LadyClaudeCommand) -> None:
     publish_message(
-        topic_arn=get_parameter(key="/LADY_CLAUDE/REPLY_SERVICE_TOPIC_ARN"),
+        topic_arn=get_parameter(key="/LADY_CLAUDE/REPLY_SERVICE/TOPIC_ARN"),
         message=message,
         message_attributes={
             "command": {
