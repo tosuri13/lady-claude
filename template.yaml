@@ -53,6 +53,23 @@ Resources:
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.10
 
+  LadyClaudeWorkerReplyServiceMinecraftFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Events:
+        LadyClaudeSnsEvents:
+          Type: SNS
+          Properties:
+            FilterPolicy:
+              command:
+                - minecraft
+            Topic: !Ref LadyClaudeReplyServiceTopic
+      FunctionName: lady-claude-worker-reply-service-minecraft-function
+      Handler: lady_claude.function.worker.reply_service.minecraft.function.handler
+      Role: !GetAtt LadyClaudeFunctionRole.Arn
+      Runtime: python3.10
+
   LadyClaudeFunctionRole:
     Type: AWS::IAM::Role
     Properties:

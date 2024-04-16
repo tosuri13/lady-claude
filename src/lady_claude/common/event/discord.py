@@ -9,3 +9,7 @@ class InteractionType(Enum):
 class InteractionResponseType(Enum):
     PONG = 1
     DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5
+
+
+class ApplicationCommandOptionType(Enum):
+    STRING = 3
