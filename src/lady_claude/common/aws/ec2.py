@@ -12,9 +12,9 @@ def start_instance(instance_id: str) -> None:
     return None
 
 
-def get_instance_public_ip(instance_id: str) -> str:
+def describe_instance(instance_id: str) -> dict:
     ec2_client = boto3.client("ec2", region_name="ap-northeast-1")
 
     response = ec2_client.describe_instances(InstanceIds=[instance_id])
 
-    return response["Reservations"][0]["Instances"][0]["PublicIpAddress"]
+    return response["Reservations"][0]["Instances"][0]

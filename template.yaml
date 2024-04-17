@@ -88,9 +88,14 @@ Resources:
               - Effect: Allow
                 Action: 
                   - bedrock:InvokeModel
+                  - ec2:DescribeInstances
+                  - ec2:StartInstances
+                  - ec2:StopInstances
                   - sns:Publish
                   - sns:Subscribe
                   - ssm:GetParameter
+                  - ssm:GetCommandInvocation
+                  - ssm:SendCommand
                 Resource: "*"
       RoleName: lady-claude-function-role
 

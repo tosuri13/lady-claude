@@ -1,7 +1,7 @@
 import json
 
-from lady_claude.common.aws.ec2 import get_instance_public_ip, start_instance
-from lady_claude.common.aws.ssm import get_parameter
+from lady_claude.common.aws.ec2 import describe_instance, start_instance
+from lady_claude.common.aws.ssm import get_parameter, send_command
 from lady_claude.common.discord import get_option_dict, respond_interaction
 from lady_claude.common.util import get_lady_error_comment
 from lady_claude.common.event.lady_claude import (
@@ -43,11 +43,29 @@ def _handle_request(request: dict) -> str:
 
     match options["action"]:
         case LadyClaudeMinecraftOptionCommand.START.value:
-            start_instance(instance_id)
-            public_ip = get_instance_public_ip(instance_id)
-
-            content = f"IPアドレスですわ!!: {public_ip}"
+            return _handle_start_action(instance_id)
         case _:
-            content = "未実装ですわ!!"
+            return "未実装ですわ!!"
 
-    return content
+
+def _handle_start_action(instance_id: str) -> str:
+    state = describe_instance(instance_id)["State"]["Name"]
+    if state != "stopped":
+        return "あら?インスタンスが「停止中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
+
+    start_instance(instance_id)
+    public_ip = describe_instance(instance_id)["PublicIpAddress"]
+
+    server_version = "1.20.4-forge"
+    send_command(
+        instance_id,
+        commands=[
+            f"cd /home/ec2-user/minecraft/servers/{server_version}",
+            "nohup bash run.sh > nohup.log 2>&1 &",
+        ],
+    )
+
+    return (
+        f"Minecraftサーバ({server_version})を起動しましたわ!!\n"
+        f"今回のIPアドレスは「{public_ip}」ですわよ。わたくしに感謝して存分に遊んでくださいまし!!"
+    )
