@@ -29,9 +29,13 @@ def send_command(instance_id: str, commands: List[str]) -> str:
         InstanceId=instance_id,
     )
 
-    result = ssm_client.get_command_invocation(
+    return command_id
+
+
+def get_command_invocation(command_id: str, instance_id: str) -> dict:
+    ssm_client = boto3.client("ssm", region_name="ap-northeast-1")
+
+    return ssm_client.get_command_invocation(
         CommandId=command_id,
         InstanceId=instance_id,
     )
-
-    return result["StandardOutputContent"]

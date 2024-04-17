@@ -1,7 +1,12 @@
 import json
+import time
 
 from lady_claude.common.aws.ec2 import describe_instance, start_instance
-from lady_claude.common.aws.ssm import get_parameter, send_command
+from lady_claude.common.aws.ssm import (
+    get_command_invocation,
+    get_parameter,
+    send_command,
+)
 from lady_claude.common.discord import get_option_dict, respond_interaction
 from lady_claude.common.util import get_lady_error_comment
 from lady_claude.common.event.lady_claude import (
@@ -57,13 +62,22 @@ def _handle_start_action(instance_id: str) -> str:
     public_ip = describe_instance(instance_id)["PublicIpAddress"]
 
     server_version = "1.20.4-forge"
-    send_command(
+    command_id = send_command(
         instance_id,
         commands=[
             f"cd /home/ec2-user/minecraft/servers/{server_version}",
             "nohup bash run.sh > nohup.log 2>&1 &",
         ],
     )
+
+    status = get_command_invocation(command_id, instance_id)["Status"]
+    if status != "Success":
+        return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
+
+    """
+    NOTE: Minecraftサーバにログインできるようになるまでタイムラグがあるため、サーバを起動してから20秒間待機する
+    """
+    time.sleep(20)
 
     return (
         f"Minecraftサーバ({server_version})を起動しましたわ!!\n"
