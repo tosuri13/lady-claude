@@ -1,6 +1,7 @@
 import json
 import time
 
+from datetime import datetime
 from lady_claude.common.aws.ec2 import describe_instance, start_instance, stop_instance
 from lady_claude.common.aws.ssm import (
     get_command_invocation,
@@ -72,8 +73,8 @@ def _handle_start_action(instance_id: str) -> str:
     command_id = send_command(
         instance_id,
         commands=[
-            f"cd /home/ec2-user/minecraft/servers/{server_version}",
-            "nohup bash run.sh > nohup.log 2>&1 &",
+            f"cd /opt/minecraft/servers/{server_version}",
+            "nohup bash run.sh > /dev/null 2>&1 &",
         ],
     )
 
@@ -85,7 +86,8 @@ def _handle_start_action(instance_id: str) -> str:
 
     return (
         f"Minecraftサーバ({server_version})を起動しましたわ!!\n"
-        f"今回のIPアドレスは「{public_ip}」ですわ♪最後にサーバを停止するのをお忘れないようにしてくださいまし!!"
+        f"今回のIPアドレスは「{public_ip}」ですわ♪\n"
+        f"最後にサーバを停止するのをお忘れないようにしてくださいまし!!"
     )
 
 
@@ -114,16 +116,18 @@ def _handle_stop_action(instance_id: str) -> str:
     if state != "running":
         return "あら?インスタンスが「実行中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
 
-    server_version = "1.20.4-forge"
     bucket_name = get_parameter(
         key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT_BUCKUP_BUCKET_NAME"
     )
+    server_version = "1.20.4-forge"
+    upload_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     command_id = send_command(
         instance_id,
         commands=[
-            f"cd /home/ec2-user/minecraft/servers/{server_version}",
-            f"aws s3 cp ./world s3://{bucket_name}/{server_version} --recursive",
-            'mcrcon -w 5 "stop"',
+            f"cd /opt/minecraft/servers/{server_version}",
+            f"aws s3 cp world s3://{bucket_name}/{server_version}/{upload_time}/world --recursive",
+            f"source ~/.bashrc",
+            f"mcrcon -w 5 stop",
         ],
     )
 
@@ -137,5 +141,6 @@ def _handle_stop_action(instance_id: str) -> str:
 
     return (
         f"Minecraftサーバ({server_version})を停止しましたわ!!\n"
-        f"ワールドのバックアップも取得していますわよ!!わたくしったら天才ですわね♪"
+        f"自動でバックアップも保存しておりますわよ!!\n"
+        f"また遊びたくなったら、いつでもわたくしをお呼びくださいまし!!\n"
     )
