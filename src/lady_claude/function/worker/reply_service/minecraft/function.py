@@ -85,7 +85,7 @@ def _handle_start_action(instance_id: str) -> str:
 
     return (
         f"Minecraftサーバ({server_version})を起動しましたわ!!\n"
-        f"今回のIPアドレスは「{public_ip}」ですわよ!!遊び終わりましたらサーバを停止するのをお忘れなく♪"
+        f"今回のIPアドレスは「{public_ip}」ですわ♪最後にサーバを停止するのをお忘れないようにしてくださいまし!!"
     )
 
 
@@ -100,7 +100,7 @@ def _handle_status_action(instance_id: str) -> str:
         case "stopped":
             return (
                 "Minecraftサーバは「停止済み」ですわ!!\n"
-                "どなたかと遊びたいのかしら?でしたら、わたくしにサーバの起動を命じてくださいまし!!"
+                "ふふっ、遊びたいのかしら?でしたら、わたくしにサーバの起動を命じてくださいまし!!"
             )
         case _:
             return (
@@ -113,8 +113,6 @@ def _handle_stop_action(instance_id: str) -> str:
     state = describe_instance(instance_id)["State"]["Name"]
     if state != "running":
         return "あら?インスタンスが「実行中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
-
-    stop_instance(instance_id)
 
     server_version = "1.20.4-forge"
     bucket_name = get_parameter(
@@ -134,6 +132,8 @@ def _handle_stop_action(instance_id: str) -> str:
         return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
 
     time.sleep(5)
+
+    stop_instance(instance_id)
 
     return (
         f"Minecraftサーバ({server_version})を停止しましたわ!!\n"
