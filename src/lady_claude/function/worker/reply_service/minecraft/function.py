@@ -1,7 +1,7 @@
 import json
 import time
 
-from lady_claude.common.aws.ec2 import describe_instance, start_instance
+from lady_claude.common.aws.ec2 import describe_instance, start_instance, stop_instance
 from lady_claude.common.aws.ssm import (
     get_command_invocation,
     get_parameter,
@@ -49,14 +49,21 @@ def _handle_request(request: dict) -> str:
     match options["action"]:
         case LadyClaudeMinecraftOptionCommand.START.value:
             return _handle_start_action(instance_id)
+        case LadyClaudeMinecraftOptionCommand.STATUS.value:
+            return _handle_status_action(instance_id)
+        case LadyClaudeMinecraftOptionCommand.STOP.value:
+            return _handle_stop_action(instance_id)
         case _:
-            return "未実装ですわ!!"
+            return (
+                "わたくしそのようなアクションには対応しておりませんわ...セバスチャン(開発者)に聞いてくれるかしら?\n"
+                "(どうやってわたくしに命じたのですの...?)"
+            )
 
 
 def _handle_start_action(instance_id: str) -> str:
     state = describe_instance(instance_id)["State"]["Name"]
     if state != "stopped":
-        return "あら?インスタンスが「停止中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
+        return "あら?インスタンスが「停止済み」ではないみたいですわ...インスタンスの状態を確認してくださる?"
 
     start_instance(instance_id)
     public_ip = describe_instance(instance_id)["PublicIpAddress"]
@@ -74,12 +81,61 @@ def _handle_start_action(instance_id: str) -> str:
     if status != "Success":
         return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
 
-    """
-    NOTE: Minecraftサーバにログインできるようになるまでタイムラグがあるため、サーバを起動してから20秒間待機する
-    """
     time.sleep(20)
 
     return (
         f"Minecraftサーバ({server_version})を起動しましたわ!!\n"
-        f"今回のIPアドレスは「{public_ip}」ですわよ。わたくしに感謝して存分に遊んでくださいまし!!"
+        f"今回のIPアドレスは「{public_ip}」ですわよ!!遊び終わりましたらサーバを停止するのをお忘れなく♪"
+    )
+
+
+def _handle_status_action(instance_id: str) -> str:
+    state = describe_instance(instance_id)["State"]["Name"]
+    match state:
+        case "running":
+            return (
+                "Minecraftサーバは「実行中」ですわ!!\n"
+                "誰も遊んでおられないのなら、わたくしにサーバの停止を命じてくださいまし!!"
+            )
+        case "stopped":
+            return (
+                "Minecraftサーバは「停止済み」ですわ!!\n"
+                "どなたかと遊びたいのかしら?でしたら、わたくしにサーバの起動を命じてくださいまし!!"
+            )
+        case _:
+            return (
+                "あら?Minecraftサーバは「実行中」でも「停止済み」でもないみたいですわ...\n"
+                "少し時間をおいて、もう一度わたくしにサーバの確認を命じてもらえるかしら?"
+            )
+
+
+def _handle_stop_action(instance_id: str) -> str:
+    state = describe_instance(instance_id)["State"]["Name"]
+    if state != "running":
+        return "あら?インスタンスが「実行中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
+
+    stop_instance(instance_id)
+
+    server_version = "1.20.4-forge"
+    bucket_name = get_parameter(
+        key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT_BUCKUP_BUCKET_NAME"
+    )
+    command_id = send_command(
+        instance_id,
+        commands=[
+            f"cd /home/ec2-user/minecraft/servers/{server_version}",
+            f"aws s3 cp ./world s3://{bucket_name}/{server_version} --recursive",
+            'mcrcon -w 5 "stop"',
+        ],
+    )
+
+    status = get_command_invocation(command_id, instance_id)["Status"]
+    if status != "Success":
+        return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
+
+    time.sleep(5)
+
+    return (
+        f"Minecraftサーバ({server_version})を停止しましたわ!!\n"
+        f"ワールドのバックアップも取得していますわよ!!わたくしったら天才ですわね♪"
     )
