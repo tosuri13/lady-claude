@@ -6,8 +6,6 @@ from src.lady_claude.common.event.discord import ApplicationCommandOptionType
 from src.lady_claude.common.event.lady_claude import LadyClaudeMinecraftOptionCommand
 
 APPLICATION_ID = get_parameter(key="/LADY_CLAUDE/DISCORD/APPLICATION_ID")
-GUILD_ID = get_parameter(key="/LADY_CLAUDE/DISCORD/GUILD_ID")
-
 AUTH_HEADERS = {
     "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD/BOT_TOKEN')}",
     "Content-Type": "application/json",
@@ -16,7 +14,7 @@ AUTH_HEADERS = {
 
 if __name__ == "__main__":
     response = requests.get(
-        url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/guilds/{GUILD_ID}/commands",
+        url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/commands",
         headers=AUTH_HEADERS,
     )
 
@@ -24,7 +22,7 @@ if __name__ == "__main__":
         command_id = command["id"]
 
         requests.delete(
-            url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/guilds/{GUILD_ID}/commands/{command_id}",
+            url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/commands/{command_id}",
             headers=AUTH_HEADERS,
         )
 
@@ -60,6 +58,10 @@ if __name__ == "__main__":
                             "name": "サーバの状態を確認いたしますわ!!",
                             "value": LadyClaudeMinecraftOptionCommand.STATUS.value,
                         },
+                        {
+                            "name": "ワールドのバックアップを取りますわ!!",
+                            "value": LadyClaudeMinecraftOptionCommand.BACKUP.value,
+                        },
                     ],
                     "description": "サーバへのアクションを選んでね!!",
                     "required": True,
@@ -71,7 +73,7 @@ if __name__ == "__main__":
 
     for command in commands:
         response = requests.post(
-            url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/guilds/{GUILD_ID}/commands",
+            url=f"https://discord.com/api/v10/applications/{APPLICATION_ID}/commands",
             headers=AUTH_HEADERS,
             data=json.dumps(command),
         )

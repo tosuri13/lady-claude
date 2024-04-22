@@ -10,3 +10,4 @@ class LadyClaudeMinecraftOptionCommand(Enum):
     START = "start"
     STOP = "stop"
     STATUS = "status"
+    BACKUP = "backup"
