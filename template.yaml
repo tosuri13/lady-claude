@@ -40,6 +40,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
       Events:
         LadyClaudeSnsEvents:
           Type: SNS
@@ -57,6 +59,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
       Events:
         LadyClaudeSnsEvents:
           Type: SNS
