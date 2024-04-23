@@ -1,6 +1,6 @@
-import boto3
-
 from typing import List
+
+import boto3
 
 
 def get_parameter(key: str) -> str:

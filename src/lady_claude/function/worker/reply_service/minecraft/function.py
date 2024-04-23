@@ -1,7 +1,7 @@
 import json
 import time
-
 from datetime import datetime
+
 from lady_claude.common.aws.ec2 import describe_instance, start_instance, stop_instance
 from lady_claude.common.aws.ssm import (
     get_command_invocation,
@@ -9,11 +9,11 @@ from lady_claude.common.aws.ssm import (
     send_command,
 )
 from lady_claude.common.discord import get_option_dict, respond_interaction
-from lady_claude.common.util import get_lady_error_comment
 from lady_claude.common.event.lady_claude import (
     LadyClaudeCommand,
     LadyClaudeMinecraftOptionCommand,
 )
+from lady_claude.common.util import get_lady_error_comment
 
 
 def handler(event: dict, context: dict) -> None:
@@ -44,7 +44,7 @@ def handler(event: dict, context: dict) -> None:
 def _handle_request(request: dict) -> str:
     options = get_option_dict(request["data"]["options"])
     instance_id = get_parameter(
-        key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT_SERVER_INSTANCE_ID"
+        key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/SERVER_INSTANCE_ID"
     )
 
     match options["action"]:
@@ -143,7 +143,7 @@ def _handle_status_action(instance_id: str) -> str:
 
 def _handle_backup_action(instance_id: str) -> str:
     bucket_name = get_parameter(
-        key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT_BUCKUP_BUCKET_NAME"
+        key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME"
     )
     server_version = "1.20.4-forge"
     upload_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")

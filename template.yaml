@@ -17,7 +17,7 @@ Resources:
   LadyClaudeReplyServiceTopic:
     Type: AWS::SNS::Topic
     Properties:
-      DisplayName: lady-claude-reply-service-topic
+      TopicName: lady-claude-reply-service-topic
 
   LadyClaudeApiPostFunction:
     Type: AWS::Serverless::Function
