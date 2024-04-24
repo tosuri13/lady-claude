@@ -2,7 +2,7 @@ version = 0.1
 [default.deploy.parameters]
 stack_name = "lady-claude-app"
 s3_bucket = "uniurchin-sam-artifact"
-s3_prefix = "lady-claude-app"
+s3_prefix = "lady-claude"
 region = "ap-northeast-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_NAMED_IAM"

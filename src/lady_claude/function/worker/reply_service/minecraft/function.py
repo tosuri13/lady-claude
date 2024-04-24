@@ -71,12 +71,12 @@ def _handle_start_action(instance_id: str) -> str:
     start_instance(instance_id)
     public_ip = describe_instance(instance_id)["PublicIpAddress"]
 
-    server_version = "1.20.4-forge"
+    server_version = "1.20.1-fabric"
     command_id = send_command(
         instance_id,
         commands=[
             f"cd /opt/minecraft/servers/{server_version}",
-            "nohup bash run.sh > /dev/null 2>&1 &",
+            "nohup bash run.sh > nohup.log 2>&1 &",
         ],
     )
 
@@ -98,12 +98,18 @@ def _handle_stop_action(instance_id: str) -> str:
     if state != "running":
         return "あら?インスタンスが「実行中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
 
-    server_version = "1.20.4-forge"
+    bucket_name = get_parameter(
+        key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME"
+    )
+    server_version = "1.20.1-fabric"
+    upload_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     command_id = send_command(
         instance_id,
         commands=[
-            "source ~/.bashrc",
-            "mcrcon -w 5 stop",
+            f"cd /opt/minecraft/servers/{server_version}",
+            f"aws s3 cp world s3://{bucket_name}/{server_version}/{upload_time}/world --recursive",
+            f"source ~/.bashrc",
+            f"mcrcon -w 5 stop",
         ],
     )
 
@@ -117,6 +123,7 @@ def _handle_stop_action(instance_id: str) -> str:
 
     return (
         f"Minecraftサーバ({server_version})を停止しましたわ!!\n"
+        f"自動でバックアップも保存しておりますわよ!!"
         f"また遊びたくなったら、いつでもわたくしをお呼びくださいまし!!\n"
     )
 
@@ -145,7 +152,7 @@ def _handle_backup_action(instance_id: str) -> str:
     bucket_name = get_parameter(
         key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME"
     )
-    server_version = "1.20.4-forge"
+    server_version = "1.20.1-fabric"
     upload_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     command_id = send_command(
         instance_id,
