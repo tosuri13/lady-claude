@@ -13,7 +13,7 @@
 <div align="center">
   <blockquote>
   ごきげんよう!!<br>
-  そうですわ!!素敵な日差しの中、お庭でお茶でもいかがかしら?<br>
+  そうですわ!!素敵な日差しの中、お庭でお茶でもいかがかしら?
   </blockquote>
 </div>
 
@@ -23,7 +23,7 @@
 
 DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amazon SNSで処理を行うLambdaを振り分けます。
 
-また、Discord Botとしてのメッセージの生成にAmazon Bedrockの**Claude 3 Sonnet**を使用しており、さながらお嬢様のように回答してくれます。
+また、Discord Botとしてのメッセージの生成にAmazon Bedrockの**Claude3 Sonnet**を使用しており、さながらお嬢様のように回答してくれます。
 
 <div align="center">
   <img width="560px" src="./images/overall-architecture.png" />
@@ -35,11 +35,11 @@ DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amaz
 
 現在は、以下のslash commandsを利用することができます。
 
-#### 🤔 [`ask`](https://github.com/UniUrchin/lady-claude)
+#### 🤔 [`ask`](https://github.com/UniUrchin/lady-claude/blob/main/documents/ask-architecture.md)
 
 - Claudeお嬢様に何でも質問してみましょう!!
 
-#### ⛏️ [`minecraft`](https://github.com/UniUrchin/lady-claude)
+#### ⛏️ [`minecraft`](https://github.com/UniUrchin/lady-claude/blob/main/documents/minecraft-architecture.md)
 
 - Claudeお嬢様にMinecraft Serverを操作してもらいましょう!!
 
@@ -65,7 +65,7 @@ $ poetry run python tools/xxx.py
 
 ### SSMパラメータの作成
 
-事前にDiscord Applicationを作成し、設定情報をSSMパラメータとして以下のように設定する必要があります。
+事前にDiscord Applicationを作成し、以下の設定情報をSSMパラメータとして作成する必要があります。
 
 - `/LADY_CLAUDE/DISCORD/APPLICATION_ID`: Discord ApplicationのアプリケーションID
 
@@ -73,7 +73,8 @@ $ poetry run python tools/xxx.py
 
 - `/LADY_CLAUDE/DISCORD/PUBLIC_KEY`:Discord Applicationのパブリックキー
 
-> その他、各コマンドに固有なリソースも存在するため、それぞれのREADME.mdを参照してください。
+> [!WARNING]
+> 使用するコマンドによっては上記以外のパラメータやリソースが必要になる場合がありますので、各Slash commandsのREADME.mdを参照してください。
 
 ### アプリケーションのビルドとAWSへのデプロイ
 

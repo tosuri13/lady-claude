@@ -1,31 +1,68 @@
-# Lady Claude - minecraft
+<h1 align="center">🎀 Lady Claude - minecraft 🎀</h1>
 
-🚧 作成中
+<div align="center">
+  <blockquote>
+  ふふっ、遊びたいのかしら?<br>
+  でしたら、わたくしにサーバの起動を命じてくださいまし!!
+  </blockquote>
+</div>
 
-## EC2 Userdata for Minecraft Server
+## 🌟 Overview
+
+**minecraft**コマンドでは、同じAWS環境のEC2インスタンスとして作成されているMinecraftサーバを、Claudeお嬢様に操作してもらうことができます。
+
+Claudeお嬢様で可能な操作には、サーバの起動や停止に加えて、バックアップの取得やワールドの切り替えなど便利な機能が揃っています。
+
+<br>
+
+<div align="center">
+  <img width="480px" src="../images/minecraft-architecture.png" />
+</div>
+
+## 💡 Usage
+
+以下の形式でDiscordのSlash commandを入力してください。
 
 ```
-Content-Type: multipart/mixed; boundary="//"
-MIME-Version: 1.0
-
---//
-Content-Type: text/cloud-config; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="cloud-config.txt"
-
-#cloud-config
-cloud_final_modules:
-- [scripts-user, always]
-
---//
-Content-Type: text/x-shellscript; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="userdata.txt"
-
-#!/bin/bash
-cd ~/minecraft/servers/1.20.4
-nohup java -Xmx1300M -Xms1300M -jar server.jar nogui &
---//--
+/minecraft {action}
 ```
+
+- `action`: Claudeお嬢様に行ってもらいたいアクション
+
+  - `start`: Minecraftサーバを起動する
+
+  - `stop`: Minecraftサーバを停止する
+
+  - `status`: Minecraftサーバの状態を確認する
+
+  - `backup`: 選択されているワールドのバックアップをS3に出力する
+
+## 🧱 Additional Infrastructure
+
+### EC2インスタンスとバックアップ用S3バケットの作成
+
+MinecraftサーバをホストするEC2インスタンスとワールドのバックアップを保管するためのS3バケットは、事前に作成する必要があります。
+
+また、Minecraftサーバの起動にはSystems Managerの**Run Command**を使用するため、EC2インスタンスに対して以下の設定を行う必要があります。
+
+- SSMエージェントのインストール
+
+- SSMとS3の実行権限を持ったインスタンスプロファイルのアタッチ
+
+- MCRCONの有効化
+
+- MCRCONに使用する環境変数のエクスポート
+
+  - `MCRCON_HOST`: "localhost"を記載する
+
+  - `MCRCON_PORT`: 任意のポート番号を記載する
+
+  - `MCRCON_PASSWORD`: 任意のパスワードを記載する
+
+### SSMパラメータの作成
+
+事前に作成されたEC2インスタンスとS3バケットの情報をClaudeお嬢様に伝えるために、以下のSSMパラメータを作成する必要があります。
+
+- `/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/SERVER_INSTANCE_ID`: MinecraftサーバをホストするEC2インスタンスのID
+
+- `/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME`: ワールドのバックアップを出力するS3のバケット名
