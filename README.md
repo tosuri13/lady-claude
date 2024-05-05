@@ -21,15 +21,29 @@
 
 **Lady Claude**(Claudeお嬢様)は、AWS上で動作するサーバレスのDiscord Botです。
 
-Botとしての回答の生成にAmazon Bedrockの**Claude 3 Sonnet**を使用しており、さながらお嬢様のように回答してくれます。
+DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amazon SNSで処理を行うLambdaを振り分けます。
 
-<br>
+また、Discord Botとしてのメッセージの生成にAmazon Bedrockの**Claude 3 Sonnet**を使用しており、さながらお嬢様のように回答してくれます。
 
 <div align="center">
-  <img width="640px" src="./images/aws_diagram.png" />
+  <img width="560px" src="./images/overall-architecture.png" />
 </div>
 
-## 🛠️ Develop
+## 💡 Usage
+
+対象となるサーバにClaudeお嬢様を追加し、Slash commandsを呼び出すことで使用することができます。
+
+現在は、以下のslash commandsを利用することができます。
+
+#### 🤔 [`ask`](https://github.com/UniUrchin/lady-claude)
+
+- Claudeお嬢様に何でも質問してみましょう!!
+
+#### ⛏️ [`minecraft`](https://github.com/UniUrchin/lady-claude)
+
+- Claudeお嬢様にMinecraft Serverを操作してもらいましょう!!
+
+## 🚧 Develop
 
 ### 依存関係のインストール
 
@@ -53,13 +67,13 @@ $ poetry run python tools/xxx.py
 
 事前にDiscord Applicationを作成し、設定情報をSSMパラメータとして以下のように設定する必要があります。
 
-- `/LADY_CLAUDE/DISCORD_APPLICATION_ID`: Discord ApplicationのアプリケーションID
+- `/LADY_CLAUDE/DISCORD/APPLICATION_ID`: Discord ApplicationのアプリケーションID
 
-- `/LADY_CLAUDE/DISCORD_BOT_TOKEN`: Discord Botのトークン
+- `/LADY_CLAUDE/DISCORD/BOT_TOKEN`: Discord Botのトークン
 
-- `/LADY_CLAUDE/DISCORD_GUILD_ID`: Discord Botを利用するサーバのID
+- `/LADY_CLAUDE/DISCORD/PUBLIC_KEY`:Discord Applicationのパブリックキー
 
-- `/LADY_CLAUDE/DISCORD_PUBLIC_KEY`:Discord Applicationのパブリックキー
+> その他、各コマンドに固有なリソースも存在するため、それぞれのREADME.mdを参照してください。
 
 ### アプリケーションのビルドとAWSへのデプロイ
 
@@ -68,5 +82,3 @@ Poetryのタスクランナーとして**Poethepoet**を使用しており、AWS
 ```
 $ poe build & poe deploy
 ```
-
-> ⚠️ `poe build`を実行すると、自動的に依存関係を`requirements.txt`としてエクスポートするため、`poetry add <パッケージ名>`を実行するだけでLambdaに依存関係が追加される。

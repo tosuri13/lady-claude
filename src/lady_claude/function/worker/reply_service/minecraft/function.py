@@ -15,6 +15,8 @@ from lady_claude.common.event.lady_claude import (
 )
 from lady_claude.common.util import get_lady_error_comment
 
+MINECRAFT_INSTANCE_REGION = "ap-south-1"
+
 
 def handler(event: dict, context: dict) -> None:
     try:
@@ -64,12 +66,14 @@ def _handle_request(request: dict) -> str:
 
 
 def _handle_start_action(instance_id: str) -> str:
-    state = describe_instance(instance_id)["State"]["Name"]
+    response = describe_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
+    state = response["State"]["Name"]
     if state != "stopped":
         return "あら?インスタンスが「停止済み」ではないみたいですわ...インスタンスの状態を確認してくださる?"
 
-    start_instance(instance_id)
-    public_ip = describe_instance(instance_id)["PublicIpAddress"]
+    start_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
+    response = describe_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
+    public_ip = response["PublicIpAddress"]
 
     server_version = "1.20.1-fabric"
     command_id = send_command(
@@ -78,9 +82,15 @@ def _handle_start_action(instance_id: str) -> str:
             f"cd /opt/minecraft/servers/{server_version}",
             "nohup bash run.sh > nohup.log 2>&1 &",
         ],
+        region_name=MINECRAFT_INSTANCE_REGION,
     )
 
-    status = get_command_invocation(command_id, instance_id)["Status"]
+    response = get_command_invocation(
+        command_id,
+        instance_id,
+        region_name=MINECRAFT_INSTANCE_REGION,
+    )
+    status = response["Status"]
     if status != "Success":
         return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
 
@@ -94,7 +104,8 @@ def _handle_start_action(instance_id: str) -> str:
 
 
 def _handle_stop_action(instance_id: str) -> str:
-    state = describe_instance(instance_id)["State"]["Name"]
+    response = describe_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
+    state = response["State"]["Name"]
     if state != "running":
         return "あら?インスタンスが「実行中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
 
@@ -111,15 +122,19 @@ def _handle_stop_action(instance_id: str) -> str:
             f"source ~/.bashrc",
             f"mcrcon -w 5 stop",
         ],
+        region_name=MINECRAFT_INSTANCE_REGION,
     )
 
-    status = get_command_invocation(command_id, instance_id)["Status"]
+    response = get_command_invocation(
+        command_id, instance_id, region_name=MINECRAFT_INSTANCE_REGION
+    )
+    status = response["Status"]
     if status != "Success":
         return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
 
     time.sleep(5)
 
-    stop_instance(instance_id)
+    stop_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
 
     return (
         f"Minecraftサーバ({server_version})を停止しましたわ!!\n"
@@ -129,7 +144,8 @@ def _handle_stop_action(instance_id: str) -> str:
 
 
 def _handle_status_action(instance_id: str) -> str:
-    state = describe_instance(instance_id)["State"]["Name"]
+    response = describe_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
+    state = response["State"]["Name"]
     match state:
         case "running":
             return (
@@ -149,6 +165,11 @@ def _handle_status_action(instance_id: str) -> str:
 
 
 def _handle_backup_action(instance_id: str) -> str:
+    response = describe_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
+    state = response["State"]["Name"]
+    if state != "running":
+        return "あら?インスタンスが「実行中」ではないみたいですわ...インスタンスの状態を確認してくださる?"
+
     bucket_name = get_parameter(
         key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME"
     )
@@ -160,9 +181,13 @@ def _handle_backup_action(instance_id: str) -> str:
             f"cd /opt/minecraft/servers/{server_version}",
             f"aws s3 cp world s3://{bucket_name}/{server_version}/{upload_time}/world --recursive",
         ],
+        region_name=MINECRAFT_INSTANCE_REGION,
     )
 
-    status = get_command_invocation(command_id, instance_id)["Status"]
+    response = get_command_invocation(
+        command_id, instance_id, region_name=MINECRAFT_INSTANCE_REGION
+    )
+    status = response["Status"]
     if status != "Success":
         return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
 
