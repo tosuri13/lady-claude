@@ -24,6 +24,25 @@ def respond_interaction(content: str, interaction_token: str) -> None:
     return None
 
 
+def send_message(content: str) -> None:
+    channel_id = get_parameter(key="/LADY_CLAUDE/DISCORD/CHANNEL_ID")
+
+    requests.post(
+        url=f"https://discord.com/api/v10/channels/{channel_id}/messages",
+        data=json.dumps(
+            {
+                "content": content,
+            }
+        ),
+        headers={
+            "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD/BOT_TOKEN')}",
+            "Content-Type": "application/json",
+        },
+    )
+
+    return None
+
+
 def get_option_dict(options: dict | None):
     if options is None:
         return {}

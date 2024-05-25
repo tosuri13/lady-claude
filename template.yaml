@@ -36,6 +36,23 @@ Resources:
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.10
 
+  LadyClaudeWorkerNotifyServiceConnpassFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
+      Events:
+        LadyClaudeScheduleEvent:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 23 ? * 7 *)"
+            Name: lady-claude-notify-service-connpass-rule
+      FunctionName: lady-claude-worker-notify-service-connpass-function
+      Handler: lady_claude.function.worker.notify_service.connpass.function.handler
+      Role: !GetAtt LadyClaudeFunctionRole.Arn
+      Runtime: python3.10
+
   LadyClaudeWorkerReplyServiceAskFunction:
     Type: AWS::Serverless::Function
     Properties:
