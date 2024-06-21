@@ -1,38 +1,37 @@
-import json
-
 import boto3
 
 
 def invoke_claude(
     message: str,
-    model_id: str = "anthropic.claude-3-sonnet-20240229-v1:0",
-    system_message: str = "",
+    model_id: str = "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    system_message: str | None = None,
     temperature: float = 0.1,
 ) -> dict:
     bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
-    response = bedrock_client.invoke_model(
-        modelId=model_id,
-        body=json.dumps(
+    params = {
+        "modelId": model_id,
+        "messages": [
             {
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 4096,
-                "messages": [
+                "role": "user",
+                "content": [
                     {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": message,
-                            }
-                        ],
+                        "text": message,
                     }
                 ],
-                "system": system_message,
-                "temperature": temperature,
             }
-        ),
-    )
-    reslut = json.loads(response.get("body").read())
+        ],
+        "inferenceConfig": {
+            "maxTokens": 4096,
+            "temperature": temperature,
+        },
+    }
 
-    return reslut
+    if system_message is not None:
+        params["system"] = [
+            {
+                "text": system_message,
+            }
+        ]
+
+    return bedrock_client.converse(**params)

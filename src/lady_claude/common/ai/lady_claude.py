@@ -23,14 +23,14 @@ def ask_lady(message: str, include_cost: bool = True) -> str:
         ),
     )
 
-    answer = response["content"][0]["text"]
+    answer = response["output"]["message"]["content"][0]["text"]
 
     if include_cost:
-        input_tokens = int(response["usage"]["input_tokens"])
-        output_tokens = int(response["usage"]["output_tokens"])
+        input_tokens = response["usage"]["inputTokens"]
+        output_tokens = response["usage"]["outputTokens"]
 
         """
-        NOTE: Claude 3 Sonnetのバージニア北部リージョンにおける料金レートを使用
+        NOTE: Claude 3.5 Sonnetのバージニア北部リージョンにおける料金レートを使用
         """
         total_cost = round(
             input_tokens * 0.003 / 1000 + output_tokens * 0.015 / 1000.0, ndigits=6
