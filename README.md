@@ -23,7 +23,7 @@
 
 DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amazon SNSで処理を行うLambdaを振り分けます。
 
-また、Discord Botとしてのメッセージの生成にAmazon Bedrockの**Claude3 Sonnet**を使用しており、さながらお嬢様のように回答してくれます。
+また、Discord Botとしてのメッセージの生成にAmazon Bedrockの**Claude**を使用しており、さながらお嬢様のように回答してくれます。
 
 <div align="center">
   <img width="560px" src="./images/overall-architecture.png" />
@@ -33,7 +33,9 @@ DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amaz
 
 対象となるサーバにClaudeお嬢様を追加し、Slash commandsを呼び出すことで使用することができます。
 
-現在は、以下のslash commandsを利用することができます。
+また、定期的にClaudeお嬢様からDiscordへ通知などのアクションを行うサービスも存在し、デプロイの段階で有効化やスケジューリングを設定することが可能です。
+
+現在は、以下のslash commandsおよび定期実行サービスを利用することができます。
 
 #### 🤔 [`ask`](https://github.com/UniUrchin/lady-claude/blob/main/documents/ask-architecture.md)
 
@@ -41,7 +43,11 @@ DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amaz
 
 #### ⛏️ [`minecraft`](https://github.com/UniUrchin/lady-claude/blob/main/documents/minecraft-architecture.md)
 
-- Claudeお嬢様にMinecraft Serverを操作してもらいましょう!!
+- Claudeお嬢様と一緒にMinecraft Serverで遊びましょう!!
+
+#### 📢 [`connpass`](https://github.com/UniUrchin/lady-claude/blob/main/documents/connpass-architecture.md)
+
+- Claudeお嬢様に最新のイベントを教えてもらいましょう!!
 
 ## 🚧 Develop
 
@@ -71,7 +77,9 @@ $ poetry run python tools/xxx.py
 
 - `/LADY_CLAUDE/DISCORD/BOT_TOKEN`: Discord Botのトークン
 
-- `/LADY_CLAUDE/DISCORD/PUBLIC_KEY`:Discord Applicationのパブリックキー
+- `/LADY_CLAUDE/DISCORD/PUBLIC_KEY`: Discord Applicationのパブリックキー
+
+- `/LADY_CLAUDE/DISCORD/CHANNEL_ID`: 定期実行サービスの通知先となるDiscordチャンネルのチャンネルID
 
 > [!WARNING]
 > 使用するコマンドによっては上記以外のパラメータやリソースが必要になる場合がありますので、各Slash commandsのREADME.mdを参照してください。
