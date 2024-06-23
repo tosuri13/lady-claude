@@ -8,7 +8,7 @@ from lady_claude.common.aws.ssm import get_parameter
 def respond_interaction(content: str, interaction_token: str) -> None:
     application_id = get_parameter(key="/LADY_CLAUDE/DISCORD/APPLICATION_ID")
 
-    requests.post(
+    response = requests.post(
         url=f"https://discord.com/api/v10/webhooks/{application_id}/{interaction_token}",
         data=json.dumps(
             {
@@ -21,13 +21,18 @@ def respond_interaction(content: str, interaction_token: str) -> None:
         },
     )
 
+    if response.status_code != 200:
+        raise ValueError(
+            f"Communication to Discord API failed. [reason: {response.text}]"
+        )
+
     return None
 
 
 def send_message(content: str) -> None:
     channel_id = get_parameter(key="/LADY_CLAUDE/DISCORD/CHANNEL_ID")
 
-    requests.post(
+    response = requests.post(
         url=f"https://discord.com/api/v10/channels/{channel_id}/messages",
         data=json.dumps(
             {
@@ -39,6 +44,11 @@ def send_message(content: str) -> None:
             "Content-Type": "application/json",
         },
     )
+
+    if response.status_code != 200:
+        raise ValueError(
+            f"Communication to Discord API failed. [reason: {response.text}]"
+        )
 
     return None
 

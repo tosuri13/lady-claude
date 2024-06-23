@@ -38,7 +38,7 @@ def _handle_request() -> str:
             ),
             temperature=0.0,
         )
-        overview = response["content"][0]["text"]
+        overview = response["output"]["message"]["content"][0]["text"]
 
         event["comment"] = ask_lady(
             message=(
