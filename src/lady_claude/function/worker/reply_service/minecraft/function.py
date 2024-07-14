@@ -75,7 +75,9 @@ def _handle_start_action(instance_id: str) -> str:
     response = describe_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
     public_ip = response["PublicIpAddress"]
 
-    server_version = "1.20.1-fabric"
+    server_version = (
+        get_parameter(key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/SERVER_VERSION"),
+    )
     command_id = send_command(
         instance_id,
         commands=[
@@ -112,7 +114,9 @@ def _handle_stop_action(instance_id: str) -> str:
     bucket_name = get_parameter(
         key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME"
     )
-    server_version = "1.20.1-fabric"
+    server_version = (
+        get_parameter(key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/SERVER_VERSION"),
+    )
     upload_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     command_id = send_command(
         instance_id,
@@ -173,7 +177,9 @@ def _handle_backup_action(instance_id: str) -> str:
     bucket_name = get_parameter(
         key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME"
     )
-    server_version = "1.20.1-fabric"
+    server_version = (
+        get_parameter(key="/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/SERVER_VERSION"),
+    )
     upload_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     command_id = send_command(
         instance_id,
