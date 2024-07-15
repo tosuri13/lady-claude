@@ -81,6 +81,7 @@ def _handle_start_action(instance_id: str) -> str:
     command_id = send_command(
         instance_id,
         commands=[
+            f"export HOME=/root",
             f"source ~/.bashrc",
             f"cd /opt/minecraft/servers/{server_version}",
             f"nohup bash run.sh > nohup.log 2>&1 &",
@@ -122,6 +123,7 @@ def _handle_stop_action(instance_id: str) -> str:
     command_id = send_command(
         instance_id,
         commands=[
+            f"export HOME=/root",
             f"source ~/.bashrc",
             f"cd /opt/minecraft/servers/{server_version}",
             f"aws s3 cp world s3://{bucket_name}/{server_version}/{upload_time}/world --recursive",
@@ -185,6 +187,7 @@ def _handle_backup_action(instance_id: str) -> str:
     command_id = send_command(
         instance_id,
         commands=[
+            f"export HOME=/root",
             f"source ~/.bashrc",
             f"cd /opt/minecraft/servers/{server_version}",
             f"aws s3 cp world s3://{bucket_name}/{server_version}/{upload_time}/world --recursive",
