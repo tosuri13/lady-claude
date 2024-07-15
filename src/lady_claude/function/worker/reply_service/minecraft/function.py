@@ -81,8 +81,9 @@ def _handle_start_action(instance_id: str) -> str:
     command_id = send_command(
         instance_id,
         commands=[
+            f"source ~/.bashrc",
             f"cd /opt/minecraft/servers/{server_version}",
-            "nohup bash run.sh > nohup.log 2>&1 &",
+            f"nohup bash run.sh > nohup.log 2>&1 &",
         ],
         region_name=MINECRAFT_INSTANCE_REGION,
     )
@@ -121,9 +122,9 @@ def _handle_stop_action(instance_id: str) -> str:
     command_id = send_command(
         instance_id,
         commands=[
+            f"source ~/.bashrc",
             f"cd /opt/minecraft/servers/{server_version}",
             f"aws s3 cp world s3://{bucket_name}/{server_version}/{upload_time}/world --recursive",
-            f"source ~/.bashrc",
             f"mcrcon -w 5 stop",
         ],
         region_name=MINECRAFT_INSTANCE_REGION,
@@ -184,6 +185,7 @@ def _handle_backup_action(instance_id: str) -> str:
     command_id = send_command(
         instance_id,
         commands=[
+            f"source ~/.bashrc",
             f"cd /opt/minecraft/servers/{server_version}",
             f"aws s3 cp world s3://{bucket_name}/{server_version}/{upload_time}/world --recursive",
         ],
