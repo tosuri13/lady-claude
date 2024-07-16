@@ -1,5 +1,5 @@
 from lady_claude.common.ai.lady_claude import ask_lady
-from lady_claude.common.aws.bedrock import invoke_claude
+from lady_claude.common.aws.bedrock import converse
 from lady_claude.common.connpass import get_interested_events
 from lady_claude.common.discord import send_message
 from lady_claude.common.util import get_lady_error_comment
@@ -26,7 +26,7 @@ def _handle_request() -> str:
         )
 
     for event in events:
-        response = invoke_claude(
+        response = converse(
             message=event["description"],
             model_id="anthropic.claude-3-haiku-20240307-v1:0",
             system_message=(

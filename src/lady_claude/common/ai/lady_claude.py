@@ -1,10 +1,10 @@
 import random
 
-from lady_claude.common.aws.bedrock import invoke_claude
+from lady_claude.common.aws.bedrock import converse
 
 
 def ask_lady(message: str, include_cost: bool = True) -> str:
-    response = invoke_claude(
+    response = converse(
         message=message,
         system_message=(
             "あなたにはこれから「明るい性格のお嬢様」として、会話に対する応答を出力してもらいます。"

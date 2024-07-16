@@ -1,11 +1,15 @@
+import json
+from typing import Dict, List
+
 import boto3
 
 
-def invoke_claude(
+def converse(
     message: str,
     model_id: str = "anthropic.claude-3-5-sonnet-20240620-v1:0",
-    system_message: str | None = None,
     temperature: float = 0.1,
+    system_message: str | None = None,
+    tool_config: Dict | None = None,
 ) -> dict:
     bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
@@ -34,4 +38,28 @@ def invoke_claude(
             }
         ]
 
+    if tool_config is not None:
+        params["toolConfig"] = tool_config
+
     return bedrock_client.converse(**params)
+
+
+def embed(
+    text: str,
+    embedding_model: str = "amazon.titan-embed-text-v2:0",
+    dimensions: int = 1024,
+) -> List[float]:
+    bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
+
+    response = bedrock_client.invoke_model(
+        body=json.dumps(
+            {
+                "inputText": text,
+                "dimensions": dimensions,
+            }
+        ),
+        modelId=embedding_model,
+    )
+    response_body = json.loads(response["body"].read())
+
+    return response_body["embedding"]

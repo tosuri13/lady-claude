@@ -91,6 +91,25 @@ Resources:
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.10
 
+  LadyClaudeWorkerReplyServiceRecipeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
+      Events:
+        LadyClaudeSnsEvents:
+          Type: SNS
+          Properties:
+            FilterPolicy:
+              command:
+                - recipe
+            Topic: !Ref LadyClaudeReplyServiceTopic
+      FunctionName: lady-claude-worker-reply-service-recipe-function
+      Handler: lady_claude.function.worker.reply_service.recipe.function.handler
+      Role: !GetAtt LadyClaudeFunctionRole.Arn
+      Runtime: python3.10
+
   LadyClaudeFunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -112,6 +131,8 @@ Resources:
                   - ec2:DescribeInstances
                   - ec2:StartInstances
                   - ec2:StopInstances
+                  - s3:GetObject
+                  - s3:PutObject
                   - sns:Publish
                   - sns:Subscribe
                   - ssm:GetParameter

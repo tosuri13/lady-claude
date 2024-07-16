@@ -4,6 +4,7 @@ from enum import Enum
 class LadyClaudeCommand(Enum):
     ASK = "ask"
     MINECRAFT = "minecraft"
+    RECIPE = "recipe"
 
 
 class LadyClaudeMinecraftOptionCommand(Enum):
@@ -11,3 +12,10 @@ class LadyClaudeMinecraftOptionCommand(Enum):
     STOP = "stop"
     STATUS = "status"
     BACKUP = "backup"
+
+
+class LadyClaudeRecipeOptionCommand(Enum):
+    LIST = "list"
+    SEARCH = "search"
+    REGIST = "regist"
+    DELETE = "delete"
