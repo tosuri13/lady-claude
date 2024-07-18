@@ -46,20 +46,19 @@ def converse(
 
 def embed(
     text: str,
-    embedding_model: str = "amazon.titan-embed-text-v2:0",
-    dimensions: int = 1024,
+    embedding_model: str = "cohere.embed-multilingual-v3",
 ) -> List[float]:
     bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
     response = bedrock_client.invoke_model(
         body=json.dumps(
             {
-                "inputText": text,
-                "dimensions": dimensions,
+                "texts": [text],
+                "input_type": "search_document",
             }
         ),
         modelId=embedding_model,
     )
     response_body = json.loads(response["body"].read())
 
-    return response_body["embedding"]
+    return response_body["embeddings"][0]

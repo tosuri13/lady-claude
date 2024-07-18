@@ -15,7 +15,7 @@ class LadyClaudeMinecraftOptionCommand(Enum):
 
 
 class LadyClaudeRecipeOptionCommand(Enum):
-    LIST = "list"
-    SEARCH = "search"
     REGIST = "regist"
+    ASK = "ask"
+    LIST = "list"
     DELETE = "delete"
