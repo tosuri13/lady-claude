@@ -318,6 +318,8 @@ def _handle_delete_action(
         recipe_name = recipes[delete_id]["name"]
 
         index = delete(index, delete_id)
+        write_index(index, f"/tmp/{RECIPES_FAISS_FILE_NAME}")
+
         recipes.pop(delete_id)
         with open(f"/tmp/{RECIPES_PICKLE_FILE_NAME}", "wb") as file:
             pickle.dump(recipes, file)

@@ -1,7 +1,7 @@
 import numpy as np
 from faiss import IndexFlatIP
 
-# NOTE: Titan Text Embeddings v2のデフォルト次元数を採用
+# NOTE: Cohere Embed - Multilingual次元数を採用
 DEFAULT_INDEX_DIMENSIONS = 1024
 
 
