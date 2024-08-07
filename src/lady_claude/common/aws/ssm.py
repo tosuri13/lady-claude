@@ -25,12 +25,6 @@ def send_command(
     )
     command_id = response["Command"]["CommandId"]
 
-    ssm_waiter = ssm_client.get_waiter("command_executed")
-    ssm_waiter.wait(
-        CommandId=command_id,
-        InstanceId=instance_id,
-    )
-
     return command_id
 
 

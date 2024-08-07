@@ -89,6 +89,8 @@ def _handle_start_action(instance_id: str) -> str:
         region_name=MINECRAFT_INSTANCE_REGION,
     )
 
+    time.sleep(20)
+
     response = get_command_invocation(
         command_id,
         instance_id,
@@ -97,8 +99,6 @@ def _handle_start_action(instance_id: str) -> str:
     status = response["Status"]
     if status != "Success":
         return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
-
-    time.sleep(20)
 
     return (
         f"Minecraftサーバ({server_version})を起動しましたわ!!\n"
@@ -132,14 +132,14 @@ def _handle_stop_action(instance_id: str) -> str:
         region_name=MINECRAFT_INSTANCE_REGION,
     )
 
+    time.sleep(15)
+
     response = get_command_invocation(
         command_id, instance_id, region_name=MINECRAFT_INSTANCE_REGION
     )
     status = response["Status"]
     if status != "Success":
         return "あら?コマンドの実行に失敗したみたいですわ...コマンドの履歴を確認してくださる?"
-
-    time.sleep(5)
 
     stop_instance(instance_id, region_name=MINECRAFT_INSTANCE_REGION)
 
