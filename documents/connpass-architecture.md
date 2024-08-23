@@ -7,6 +7,9 @@
   </blockquote>
 </div>
 
+> [!CAUTION]
+> 2024年9月1日より、Connpassサイトへのスクレイピング禁止が利用規約に明記されたため、この機能はDeprecatedになりました。
+
 ## 🌟 Overview
 
 **connpass**サービスでは、Claudeお嬢様が定期的にconnpassから気になるイベントを収集し、その開催概要や日程などのサマリを通知してくれます。

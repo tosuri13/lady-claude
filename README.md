@@ -37,17 +37,21 @@ DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amaz
 
 現在は、以下のslash commandsおよび定期実行サービスを利用することができます。
 
-#### 🤔 [`ask`](https://github.com/UniUrchin/lady-claude/blob/main/documents/ask-architecture.md)
+#### 🤔 [`ask`](https://github.com/tosuri13/lady-claude/blob/main/documents/ask-architecture.md)
 
 - Claudeお嬢様に何でも質問してみましょう!!
 
-#### ⛏️ [`minecraft`](https://github.com/UniUrchin/lady-claude/blob/main/documents/minecraft-architecture.md)
+#### ⛏️ [`minecraft`](https://github.com/tosuri13/lady-claude/blob/main/documents/minecraft-architecture.md)
 
 - Claudeお嬢様と一緒にMinecraft Serverで遊びましょう!!
 
-#### 📢 [`connpass`](https://github.com/UniUrchin/lady-claude/blob/main/documents/connpass-architecture.md)
+#### ~~📢 [`connpass`](https://github.com/tosuri13/lady-claude/blob/main/documents/connpass-architecture.md)~~
 
-- Claudeお嬢様に最新のイベントを教えてもらいましょう!!
+- ~~Claudeお嬢様に最新のイベントを教えてもらいましょう!!~~
+
+#### 🗑️ [`garbage`](https://github.com/tosuri13/lady-claude/blob/main/documents/garbage-architecture.md)
+
+- Claudeお嬢様にゴミ出しのリマインドをしてもらいましょう!!
 
 ## 🚧 Develop
 
