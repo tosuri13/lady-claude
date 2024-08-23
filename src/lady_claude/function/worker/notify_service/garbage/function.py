@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta, timezone
 
 from lady_claude.common.discord import send_message
 from lady_claude.common.util import get_lady_error_comment
@@ -35,4 +35,4 @@ def _handle_request() -> str:
         ),
     }
 
-    return day_texts[datetime.datetime.now().weekday()]
+    return day_texts[datetime.now(timezone(timedelta(hours=9))).weekday()]
