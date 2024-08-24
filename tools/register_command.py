@@ -4,10 +4,7 @@ import requests
 
 from src.lady_claude.common.aws.ssm import get_parameter
 from src.lady_claude.common.event.discord import ApplicationCommandOptionType
-from src.lady_claude.common.event.lady_claude import (
-    LadyClaudeMinecraftOptionCommand,
-    LadyClaudeRecipeOptionCommand,
-)
+from src.lady_claude.common.event.lady_claude import LadyClaudeMinecraftOptionCommand
 
 APPLICATION_ID = get_parameter(key="/LADY_CLAUDE/DISCORD/APPLICATION_ID")
 AUTH_HEADERS = {
@@ -81,33 +78,9 @@ if __name__ == "__main__":
             "description": "Claudeお嬢様にお料理のレシピを教えてもらおう!!",
             "options": [
                 {
-                    "name": "action",
-                    "choices": [
-                        {
-                            "name": "新しくレシピを覚えてもらおう!!",
-                            "value": LadyClaudeRecipeOptionCommand.REGIST.value,
-                        },
-                        {
-                            "name": "レシピについて教えてもらおう!!",
-                            "value": LadyClaudeRecipeOptionCommand.ASK.value,
-                        },
-                        {
-                            "name": "覚えているレシピの一覧を見せてもらおう!!",
-                            "value": LadyClaudeRecipeOptionCommand.LIST.value,
-                        },
-                        {
-                            "name": "要らないレシピを忘れてもらおう!!",
-                            "value": LadyClaudeRecipeOptionCommand.DELETE.value,
-                        },
-                    ],
-                    "description": "お嬢様にしてほしいアクションを選んでね!!",
-                    "required": True,
-                    "type": ApplicationCommandOptionType.STRING.value,
-                },
-                {
                     "name": "order",
-                    "description": "お嬢様への命令をここに書いてね!!",
-                    "required": False,
+                    "description": "レシピに関するお嬢様への命令を書いてね!!",
+                    "required": True,
                     "type": ApplicationCommandOptionType.STRING.value,
                 },
             ],

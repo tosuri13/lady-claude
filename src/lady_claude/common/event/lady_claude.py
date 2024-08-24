@@ -12,10 +12,3 @@ class LadyClaudeMinecraftOptionCommand(Enum):
     STOP = "stop"
     STATUS = "status"
     BACKUP = "backup"
-
-
-class LadyClaudeRecipeOptionCommand(Enum):
-    REGIST = "regist"
-    ASK = "ask"
-    LIST = "list"
-    DELETE = "delete"

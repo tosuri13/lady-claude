@@ -1,6 +1,6 @@
 import json
 import pickle
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
 from faiss import IndexFlatIP, read_index, write_index
@@ -10,10 +10,7 @@ from lady_claude.common.aws.bedrock import converse, embed
 from lady_claude.common.aws.s3 import download, upload
 from lady_claude.common.aws.ssm import get_parameter
 from lady_claude.common.discord import get_option_dict, respond_interaction
-from lady_claude.common.event.lady_claude import (
-    LadyClaudeCommand,
-    LadyClaudeRecipeOptionCommand,
-)
+from lady_claude.common.event.lady_claude import LadyClaudeCommand
 from lady_claude.common.faiss import delete
 from lady_claude.common.util import get_lady_error_comment
 
@@ -49,7 +46,6 @@ def handler(event: dict, context: dict) -> None:
 
 def _handle_request(request: dict) -> str:
     options = get_option_dict(request["data"]["options"])
-    order = options.get("order", "")
     bucket_name = get_parameter(
         key="/LADY_CLAUDE/REPLY_SERVICE/RECIPE/VECTORSTORE_BUCKET_NAME"
     )
@@ -69,20 +65,137 @@ def _handle_request(request: dict) -> str:
     with open(f"/tmp/{RECIPES_PICKLE_FILE_NAME}", "rb") as file:
         recipes = pickle.load(file)
 
-    match options["action"]:
-        case LadyClaudeRecipeOptionCommand.REGIST.value:
-            return _handle_regist_action(order, index, recipes, bucket_name)
-        case LadyClaudeRecipeOptionCommand.ASK.value:
-            return _handle_ask_action(order, index, recipes)
-        case LadyClaudeRecipeOptionCommand.LIST.value:
+    action, args = _extact_action(options["order"])
+
+    match action:
+        case "register":
+            return _handle_regist_action(
+                options["order"],
+                index,
+                recipes,
+                bucket_name,
+            )
+        case "answer":
+            return _handle_ask_action(
+                args["question"],
+                index,
+                recipes,
+            )
+        case "list":
             return _handle_list_action(recipes)
-        case LadyClaudeRecipeOptionCommand.DELETE.value:
-            return _handle_delete_action(order, index, recipes, bucket_name)
+        case "delete":
+            return _handle_delete_action(
+                args["recipe_name"],
+                index,
+                recipes,
+                bucket_name,
+            )
+        case "none":
+            return "レシピ関連の操作や質問以外の内容は受け付けられないですの...別の聞き方をしてくださるかしら?\n"
         case _:
             return (
                 "わたくしそのようなアクションには対応しておりませんわ...セバスチャン(開発者)に聞いてくれるかしら?\n"
                 "(どうやってわたくしに命じたのですの...?)"
             )
+
+
+def _extact_action(order: str) -> Tuple[str, dict]:
+    response = converse(
+        message=order,
+        system_message=(
+            f"あなたはとても優秀なアシスタントです。\n"
+            f"\n"
+            f"私はいまレシピ情報を利用してユーザの質問にRAGで回答するレシピヘルパーを作成しています。"
+            f"今からあなたには、ユーザから与えられたテキストを見てどのツールを実行するべきかを判断するタスクを行ってもらいます。\n"
+            f"与えられたツールを利用するべきではない、もしくは必要な引数を適切に渡すことができないと判断した場合は、ツール無理に利用するのではなく一般的な回答を返答してください。\n"
+            f"\n"
+            f"利用できるツールは以下の4つです。\n"
+            f"- `register`: ストアにレシピの情報を格納します。引数は不要です\n"
+            f"- `answer`: ストアからレシピの情報を内部で検索して、レシピに関する質問に回答する。引数には`ユーザの質問(question)`が必要です\n"
+            f"- `list`: ストアに格納されているレシピの一覧を表示します。引数は不要です\n"
+            f"- `delete`: ストアに格納されているレシピの情報を削除します。引数には`レシピ名(recipe_name)`が必要です\n"
+            f"\n"
+            f"それでは、以下にユーザから与えられたテキストを示します。"
+        ),
+        tool_config={
+            "toolChoice": {
+                "auto": {},
+            },
+            "tools": [
+                {
+                    "toolSpec": {
+                        "name": "register",
+                        "description": "ストアにレシピの情報を格納します",
+                        "inputSchema": {
+                            "json": {
+                                "type": "object",
+                                "properties": {},
+                            }
+                        },
+                    },
+                },
+                {
+                    "toolSpec": {
+                        "name": "answer",
+                        "description": "ストアからレシピの情報を内部で検索して、レシピに関する質問に回答します",
+                        "inputSchema": {
+                            "json": {
+                                "type": "object",
+                                "properties": {
+                                    "question": {
+                                        "type": "string",
+                                        "description": "とあるレシピに関するユーザからの質問(ユーザから与えられたテキストそのままでも構いません)",
+                                    },
+                                },
+                                "required": ["question"],
+                            },
+                        },
+                    },
+                },
+                {
+                    "toolSpec": {
+                        "name": "list",
+                        "description": "ストアに格納されているレシピの一覧を表示します",
+                        "inputSchema": {
+                            "json": {
+                                "type": "object",
+                                "properties": {},
+                            }
+                        },
+                    },
+                },
+                {
+                    "toolSpec": {
+                        "name": "delete",
+                        "description": "ストアに格納されているレシピの情報を削除します",
+                        "inputSchema": {
+                            "json": {
+                                "type": "object",
+                                "properties": {
+                                    "recipe_name": {
+                                        "type": "string",
+                                        "description": "削除したいレシピの名前",
+                                    },
+                                },
+                                "required": ["recipe_name"],
+                            },
+                        },
+                    }
+                },
+            ],
+        },
+    )
+
+    if response["stopReason"] == "tool_use":
+        for content in response["output"]["message"]["content"]:
+            if "toolUse" in content:
+                tool_name = content["toolUse"]["name"]
+                tool_args = content["toolUse"]["input"]
+    else:
+        tool_name = "none"
+        tool_args = {}
+
+    return tool_name, tool_args
 
 
 def _handle_regist_action(
@@ -91,12 +204,6 @@ def _handle_regist_action(
     recipes: List[Dict],
     bucket_name: str,
 ) -> str:
-    if not order:
-        return (
-            f"あら?わたくしへの命令が見当たらないですわ!!\n"
-            f"わたくしに覚えてほしいレシピの名前や材料・手順などを「order」に入力してくださいまし!!"
-        )
-
     response = converse(
         message=order,
         system_message=(
@@ -244,34 +351,37 @@ def _handle_regist_action(
 
 
 def _handle_ask_action(
-    order: str,
+    question: str,
     index: IndexFlatIP,
     recipes: List[Dict],
 ) -> str:
-    if not order:
-        return (
-            f"あら?わたくしへの命令が見当たらないですわ!!\n"
-            f"わたくしに聞きたいレシピに関する質問を「order」に入力してくださいまし!!"
-        )
-
     if recipes:
-        query_vector = np.array([embed(order)], dtype="float32")
-        _, indices = index.search(query_vector, k=1)  # type: ignore
-        recipe = recipes[indices[0][0]]
+        query_vector = np.array([embed(question)], dtype="float32")
+        _, indices = index.search(query_vector, k=5)  # type: ignore
+
+        valid_indices = [index for index in indices[0] if index != -1]
+        relevant_recipes = [recipes[index] for index in valid_indices]
+
+        recipes_info = "\n".join(
+            (
+                f"## レシピ名\n"
+                f"{recipe['name']}\n"
+                f"\n"
+                f"## レシピの手順\n"
+                f"{recipe['context']}\n"
+            )
+            for recipe in relevant_recipes
+        )
 
         return ask_lady(
             message=(
                 f"今から質問に関係するレシピの名前とレシピの手順を見せるから、これらを参考に質問に答えて!!\n"
                 f"もし、質問と全然関係ないレシピだったら「別の聞き方でもう一回聞いてほしい」っていう感じで返して!!\n"
                 f"\n"
-                f"## レシピ名\n"
-                f"{recipe['name']}\n"
-                f"\n"
-                f"## レシピの手順\n"
-                f"{recipe['context']}\n"
+                f"{recipes_info}\n"
                 f"\n"
                 f"## 質問\n"
-                f"{order}"
+                f"{question}"
             )
         )
     else:
@@ -300,21 +410,27 @@ def _handle_list_action(recipes: List[Dict]) -> str:
 
 
 def _handle_delete_action(
-    order: str,
+    recipe_name: str,
     index: IndexFlatIP,
     recipes: List[Dict],
     bucket_name: str,
 ) -> str:
-    if not order:
-        return (
-            f"あら?わたくしへの命令が見当たらないですわ!!\n"
-            f"わたくしに忘れてほしいレシピの名前や特徴を「order」に入力してくださいまし!!"
+    if recipes:
+        delete_id = next(
+            (
+                index
+                for index, recipe in enumerate(recipes)
+                if recipe["name"] == recipe_name
+            ),
+            None,
         )
 
-    if recipes:
-        query_vector = np.array([embed(order)], dtype="float32")
-        _, indices = index.search(query_vector, k=1)  # type: ignore
-        delete_id = indices[0][0]
+        if delete_id is None:
+            return (
+                f"わたくしの記憶に「{recipe_name}」という名前のレシピが見当たりませんわ...\n"
+                f"レシピの名前を確認して、もう一度聞いていただけるかしら?"
+            )
+
         recipe_name = recipes[delete_id]["name"]
 
         index = delete(index, delete_id)
