@@ -15,8 +15,6 @@
 
 また、回答の最後には出力のトークン数を元に算出した回答に対する料金が表示されます。
 
-<br>
-
 <div align="center">
   <img width="480px" src="../images/ask-architecture.png" />
 </div>

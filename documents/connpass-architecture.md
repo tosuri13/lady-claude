@@ -18,8 +18,6 @@
 
 connpassからの情報抽出にはAPIが提供されていますが、固定IPに対してのみアクセストークンが払い出されるため、Claudeお嬢様ではイベントページへのスクレイピングで対応しています。
 
-<br>
-
 <div align="center">
   <img width="480px" src="../images/connpass-architecture.png" />
 </div>

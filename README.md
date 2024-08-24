@@ -45,6 +45,10 @@ DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amaz
 
 - Claudeお嬢様と一緒にMinecraft Serverで遊びましょう!!
 
+#### 🍰 [`recipe`](https://github.com/tosuri13/lady-claude/blob/main/documents/recipe-architecture.md)
+
+- Claudeお嬢様に料理のレシピを聞いてみましょう!!
+
 #### ~~📢 [`connpass`](https://github.com/tosuri13/lady-claude/blob/main/documents/connpass-architecture.md)~~
 
 - ~~Claudeお嬢様に最新のイベントを教えてもらいましょう!!~~

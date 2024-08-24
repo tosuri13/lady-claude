@@ -13,8 +13,6 @@
 
 Claudeお嬢様で可能な操作には、サーバの起動や停止に加えて、バックアップの取得やワールドの切り替えなど便利な機能が揃っています。
 
-<br>
-
 <div align="center">
   <img width="480px" src="../images/minecraft-architecture.png" />
 </div>
