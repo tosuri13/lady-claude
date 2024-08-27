@@ -64,7 +64,7 @@ Resources:
         LadyClaudeScheduleEvent:
           Type: Schedule
           Properties:
-            Schedule: "cron(50 23 ? * 1,2,5,6 *)"
+            Schedule: "cron(50 23 ? * 2,3,5,6 *)"
             Name: lady-claude-notify-service-garbage-rule
       FunctionName: lady-claude-worker-notify-service-garbage-function
       Handler: lady_claude.function.worker.notify_service.garbage.function.handler
