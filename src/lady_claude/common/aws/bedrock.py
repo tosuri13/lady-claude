@@ -6,12 +6,12 @@ import boto3
 
 def converse(
     message: str,
-    model_id: str = "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    model_id: str = "anthropic.claude-3-5-sonnet-20241022-v2:0",
     temperature: float = 0.1,
     system_message: str | None = None,
     tool_config: Dict | None = None,
 ) -> dict:
-    bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
+    bedrock_client = boto3.client("bedrock-runtime", region_name="us-west-2")
 
     params = {
         "modelId": model_id,
@@ -48,7 +48,7 @@ def embed(
     text: str,
     embedding_model: str = "cohere.embed-multilingual-v3",
 ) -> List[float]:
-    bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
+    bedrock_client = boto3.client("bedrock-runtime", region_name="us-west-2")
 
     response = bedrock_client.invoke_model(
         body=json.dumps(
