@@ -14,7 +14,7 @@ dependencies = [
     "faiss-cpu>=1.9.0.post1",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.11"
 
 [build-system]
 requires = ["hatchling"]
@@ -23,6 +23,10 @@ build-backend = "hatchling.build"
 [tool.rye]
 managed = true
 dev-dependencies = []
+
+[tool.rye.scripts]
+export = "sh -c 'sed '/-e/d' requirements.lock > src/requirements.txt'"
+deploy = "sh -c 'rye run export && sam build && sam deploy'"
 
 [tool.hatch.metadata]
 allow-direct-references = true
