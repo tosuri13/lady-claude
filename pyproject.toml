@@ -1,35 +1,21 @@
 [project]
 name = "lady-claude"
-version = "1.0.0"
+version = "0.1.0"
 description = "A Serverless Discord Bot running on AWS, made just for me."
-authors = [
-    { name = "tosuri13", email = "85057870+tosuri13@users.noreply.github.com" }
-]
-dependencies = [
-    "boto3>=1.35.76",
-    "requests>=2.32.3",
-    "pynacl>=1.5.0",
-    "beautifulsoup4>=4.12.3",
-    "numpy>=2.1.3",
-    "faiss-cpu>=1.9.0.post1",
-]
 readme = "README.md"
-requires-python = ">= 3.11"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.rye]
-managed = true
-dev-dependencies = []
-
-[tool.rye.scripts]
-export = "sh -c 'sed '/-e/d' requirements.lock > src/requirements.txt'"
-deploy = "sh -c 'rye run export && sam build && sam deploy'"
-
-[tool.hatch.metadata]
-allow-direct-references = true
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "boto3>=1.36.11",
+    "faiss-cpu==1.9.0",
+    "numpy>=2.2.2",
+    "pynacl>=1.5.0",
+    "requests>=2.32.3",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/lady_claude"]
+
+[tool.taskipy.tasks]
+build = "uv pip compile pyproject.toml > src/requirements.txt && sam build"
+deploy = "sam deploy"
