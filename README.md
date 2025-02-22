@@ -2,10 +2,10 @@
 
 <div align="center">
   <img src="https://img.shields.io/badge/-Discord-7289DA.svg?logo=discord&style=plastic">
-  <img src="https://img.shields.io/badge/-Amazon%20Web%20Service-232F3E.svg?logo=amazon-aws&style=plastic">
-  <img src="https://img.shields.io/badge/AWS%20SAM-1.113.0-232F3E.svg?logo=amazon-aws&style=plastic">
   <img src="https://img.shields.io/badge/Python-3.10.6-3776AB.svg?logo=python&style=plastic">
-  <img src="https://img.shields.io/badge/Poetry-1.8.2-3b81f6.svg?logo=&style=plastic">
+  <img src="https://img.shields.io/badge/uv-0.5.24-D7FF64.svg?logo=astral&style=plastic">
+  <img src="https://img.shields.io/badge/-Amazon%20Web%20Service-232F3E.svg?logo=amazon&style=plastic">
+  <img src="https://img.shields.io/badge/AWS%20SAM-1.113.0-232F3E.svg?logo=amazon&style=plastic">
 </div>
 
 <br>
@@ -61,10 +61,10 @@ DiscordのWebhookで受け取ったSlash commandsのコマンドごとに、Amaz
 
 ### 依存関係のインストール
 
-Pythonのパッケージ管理に**Poetry**を使用しています。
+Pythonのパッケージ管理に**uv**を使用しています。
 
 ```
-$ poetry install
+$ uv install
 ```
 
 ### ツールの実行
@@ -72,30 +72,13 @@ $ poetry install
 Discord Botへのコマンド登録などは、`tools`以下のツールを利用して行います。
 
 ```
-$ poetry run python tools/xxx.py
+$ uv run tools/xxx.py
 ```
-
-## 🚀 Build & Deploy
-
-### SSMパラメータの作成
-
-事前にDiscord Applicationを作成し、以下の設定情報をSSMパラメータとして作成する必要があります。
-
-- `/LADY_CLAUDE/DISCORD/APPLICATION_ID`: Discord ApplicationのアプリケーションID
-
-- `/LADY_CLAUDE/DISCORD/BOT_TOKEN`: Discord Botのトークン
-
-- `/LADY_CLAUDE/DISCORD/PUBLIC_KEY`: Discord Applicationのパブリックキー
-
-- `/LADY_CLAUDE/DISCORD/CHANNEL_ID`: 定期実行サービスの通知先となるDiscordチャンネルのチャンネルID
-
-> [!WARNING]
-> 使用するコマンドによっては上記以外のパラメータやリソースが必要になる場合がありますので、各Slash commandsのREADME.mdを参照してください。
 
 ### アプリケーションのビルドとAWSへのデプロイ
 
-Poetryのタスクランナーとして**Poethepoet**を使用しており、AWSへのデプロイツールとして**AWS SAM**を使用しています。
+uvのタスクランナーとして**taskipy**を使用しており、AWSへのデプロイツールとして**AWS SAM**を使用しています。
 
 ```
-$ poe build & poe deploy
+$ task build & task deploy
 ```
