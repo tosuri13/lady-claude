@@ -1,22 +1,23 @@
 import json
+import os
 
 import requests
 
-from lady_claude.common.aws.ssm import get_parameter
+DISCORD_APPLICATION_ID = os.environ["DISCORD_APPLICATION_ID"]
+DISCORD_BOT_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
+DISCORD_CHANNEL_ID = os.environ["DISCORD_CHANNEL_ID"]
 
 
 def respond_interaction(content: str, interaction_token: str) -> None:
-    application_id = get_parameter(key="/LADY_CLAUDE/DISCORD/APPLICATION_ID")
-
     response = requests.post(
-        url=f"https://discord.com/api/v10/webhooks/{application_id}/{interaction_token}",
+        url=f"https://discord.com/api/v10/webhooks/{DISCORD_APPLICATION_ID}/{interaction_token}",
         data=json.dumps(
             {
                 "content": content,
             }
         ),
         headers={
-            "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD/BOT_TOKEN')}",
+            "Authorization": f"Bot {DISCORD_BOT_TOKEN}",
             "Content-Type": "application/json",
         },
     )
@@ -30,17 +31,15 @@ def respond_interaction(content: str, interaction_token: str) -> None:
 
 
 def send_message(content: str) -> None:
-    channel_id = get_parameter(key="/LADY_CLAUDE/DISCORD/CHANNEL_ID")
-
     response = requests.post(
-        url=f"https://discord.com/api/v10/channels/{channel_id}/messages",
+        url=f"https://discord.com/api/v10/channels/{DISCORD_CHANNEL_ID}/messages",
         data=json.dumps(
             {
                 "content": content,
             }
         ),
         headers={
-            "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD/BOT_TOKEN')}",
+            "Authorization": f"Bot {DISCORD_BOT_TOKEN}",
             "Content-Type": "application/json",
         },
     )

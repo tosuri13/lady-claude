@@ -1,18 +1,20 @@
 import json
+import os
 
 import requests
 
-from src.lady_claude.common.aws.ssm import get_parameter
 from src.lady_claude.common.event.discord import ApplicationCommandOptionType
 from src.lady_claude.common.event.lady_claude import LadyClaudeMinecraftOptionCommand
 
-APPLICATION_ID = get_parameter(key="/LADY_CLAUDE/DISCORD/APPLICATION_ID")
+DISCORD_APPLICATION_ID = os.environ["DISCORD_APPLICATION_ID"]
+DISCORD_BOT_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
+
 AUTH_HEADERS = {
-    "Authorization": f"Bot {get_parameter(key='/LADY_CLAUDE/DISCORD/BOT_TOKEN')}",
+    "Authorization": f"Bot {DISCORD_BOT_TOKEN}",
     "Content-Type": "application/json",
 }
 COMMANDS_ENDPOINT_URL = (
-    f"https://discord.com/api/v10/applications/{APPLICATION_ID}/commands"
+    f"https://discord.com/api/v10/applications/{DISCORD_APPLICATION_ID}/commands"
 )
 
 
@@ -94,6 +96,6 @@ if __name__ == "__main__":
             data=json.dumps(command),
         )
         if response.status_code == 201:
-            print(f"\"{command['name']}\"コマンドの追加に成功しましたわ!!")
+            print(f'"{command["name"]}"コマンドの追加に成功しましたわ!!')
         else:
-            print(f"\"{command['name']}\"コマンドの追加に失敗してしまいましたわ...")
+            print(f'"{command["name"]}"コマンドの追加に失敗してしまいましたわ...')

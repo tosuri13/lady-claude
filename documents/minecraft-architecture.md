@@ -56,11 +56,3 @@ MinecraftサーバをホストするEC2インスタンスとワールドのバ�
   - `MCRCON_PORT`: 任意のポート番号を記載する
 
   - `MCRCON_PASSWORD`: 任意のパスワードを記載する
-
-### SSMパラメータの作成
-
-事前に作成されたEC2インスタンスとS3バケットの情報をClaudeお嬢様に伝えるために、以下のSSMパラメータを作成する必要があります。
-
-- `/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/SERVER_INSTANCE_ID`: MinecraftサーバをホストするEC2インスタンスのID
-
-- `/LADY_CLAUDE/REPLY_SERVICE/MINECRAFT/BUCKUP_BUCKET_NAME`: ワールドのバックアップを出力するS3のバケット名

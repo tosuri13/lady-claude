@@ -1,6 +1,32 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
+Parameters:
+  DiscordApplicationId:
+    Type: String
+    Description: "Application ID for Discord Bot"
+  DiscordBotToken:
+    Type: String
+    Description: "Bot Token for Discord Bot"
+  DiscordPublicKey:
+    Type: String
+    Description: "Public Key for Discord Bot"
+  DiscordChannelId:
+    Type: String
+    Description: "Target Channel ID for Notification"
+  MinecraftBackupBucketName:
+    Type: String
+    Description: "Bucket Name for Minecraft Backup"
+  MinecraftInstanceId:
+    Type: String
+    Description: "Target Instance ID for Minecraft"
+  MinecraftServerVersion:
+    Type: String
+    Description: "Target Minecraft Server Version to launch"
+  RecipeVectorstoreBucketName:
+    Type: String
+    Description: "Bucket Name for Recipe's vectorstore"
+
 Globals:
   Function:
     Timeout: 300
@@ -14,15 +40,19 @@ Resources:
       OpenApiVersion: 3.0.0
       StageName: v1
 
-  LadyClaudeReplyServiceTopic:
+  LadyClaudeWorkerReplyTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: lady-claude-reply-service-topic
+      TopicName: lady-claude-worker-reply-topic
 
   LadyClaudeApiPostFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
+      Environment:
+        Variables:
+          DISCORD_PUBLIC_KEY: !Ref DiscordPublicKey
+          WORKER_REPLY_TOPIC_ARN: !Ref LadyClaudeWorkerReplyTopic
       Events:
         LadyClaudeApiEvents:
           Type: Api
@@ -32,51 +62,66 @@ Resources:
             RestApiId: !Ref LadyClaudeApiGateway
       FunctionName: lady-claude-api-post-function
       Handler: lady_claude.function.api.post.function.handler
-      MemorySize: 512
+      MemorySize: 1024
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.12
 
   # NOTE: 2024年9月1日からConnpassのスクレイピング禁止が明記されるため、一旦Connpassイベント通知機能も停止
-  # LadyClaudeWorkerNotifyServiceConnpassFunction:
+  # LadyClaudeWorkerNotifyConnpassFunction:
   #   Type: AWS::Serverless::Function
   #   Properties:
   #     CodeUri: src
   #     EventInvokeConfig:
   #       MaximumRetryAttempts: 0
+  #     Environment:
+  #       Variables:
+  #         DISCORD_APPLICATION_ID: !Ref DiscordApplicationId
+  #         DISCORD_BOT_TOKEN: !Ref DiscordBotToken
+  #         DISCORD_CHANNEL_ID: !Ref DiscordChannelId
   #     Events:
   #       LadyClaudeScheduleEvent:
   #         Type: Schedule
   #         Properties:
   #           Schedule: "cron(0 23 ? * 7 *)"
-  #           Name: lady-claude-notify-service-connpass-rule
-  #     FunctionName: lady-claude-worker-notify-service-connpass-function
-  #     Handler: lady_claude.function.worker.notify_service.connpass.function.handler
+  #           Name: lady-claude-worker-notify-connpass-rule
+  #     FunctionName: lady-claude-worker-notify-connpass-function
+  #     Handler: lady_claude.function.worker.notify.connpass.function.handler
   #     Role: !GetAtt LadyClaudeFunctionRole.Arn
   #     Runtime: python3.12
 
-  LadyClaudeWorkerNotifyServiceGarbageFunction:
+  LadyClaudeWorkerNotifyGarbageFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
       EventInvokeConfig:
         MaximumRetryAttempts: 0
+      Environment:
+        Variables:
+          DISCORD_APPLICATION_ID: !Ref DiscordApplicationId
+          DISCORD_BOT_TOKEN: !Ref DiscordBotToken
+          DISCORD_CHANNEL_ID: !Ref DiscordChannelId
       Events:
         LadyClaudeScheduleEvent:
           Type: Schedule
           Properties:
             Schedule: "cron(50 23 ? * 2,3,5,6 *)"
-            Name: lady-claude-notify-service-garbage-rule
-      FunctionName: lady-claude-worker-notify-service-garbage-function
-      Handler: lady_claude.function.worker.notify_service.garbage.function.handler
+            Name: lady-claude-worker-notify-garbage-rule
+      FunctionName: lady-claude-worker-notify-garbage-function
+      Handler: lady_claude.function.worker.notify.garbage.function.handler
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.12
 
-  LadyClaudeWorkerReplyServiceAskFunction:
+  LadyClaudeWorkerReplyAskFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
       EventInvokeConfig:
         MaximumRetryAttempts: 0
+      Environment:
+        Variables:
+          DISCORD_APPLICATION_ID: !Ref DiscordApplicationId
+          DISCORD_BOT_TOKEN: !Ref DiscordBotToken
+          DISCORD_CHANNEL_ID: !Ref DiscordChannelId
       Events:
         LadyClaudeSnsEvents:
           Type: SNS
@@ -84,18 +129,26 @@ Resources:
             FilterPolicy:
               command:
                 - ask
-            Topic: !Ref LadyClaudeReplyServiceTopic
-      FunctionName: lady-claude-worker-reply-service-ask-function
-      Handler: lady_claude.function.worker.reply_service.ask.function.handler
+            Topic: !Ref LadyClaudeWorkerReplyTopic
+      FunctionName: lady-claude-worker-reply-ask-function
+      Handler: lady_claude.function.worker.reply.ask.function.handler
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.12
 
-  LadyClaudeWorkerReplyServiceMinecraftFunction:
+  LadyClaudeWorkerReplyMinecraftFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
       EventInvokeConfig:
         MaximumRetryAttempts: 0
+      Environment:
+        Variables:
+          DISCORD_APPLICATION_ID: !Ref DiscordApplicationId
+          DISCORD_BOT_TOKEN: !Ref DiscordBotToken
+          DISCORD_CHANNEL_ID: !Ref DiscordChannelId
+          MINECRAFT_BACKUP_BUCKET_NAME: !Ref MinecraftBackupBucketName
+          MINECRAFT_INSTANCE_ID: !Ref MinecraftInstanceId
+          MINECRAFT_SERVER_VERSION: !Ref MinecraftServerVersion
       Events:
         LadyClaudeSnsEvents:
           Type: SNS
@@ -103,18 +156,24 @@ Resources:
             FilterPolicy:
               command:
                 - minecraft
-            Topic: !Ref LadyClaudeReplyServiceTopic
-      FunctionName: lady-claude-worker-reply-service-minecraft-function
-      Handler: lady_claude.function.worker.reply_service.minecraft.function.handler
+            Topic: !Ref LadyClaudeWorkerReplyTopic
+      FunctionName: lady-claude-worker-reply-minecraft-function
+      Handler: lady_claude.function.worker.reply.minecraft.function.handler
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.12
 
-  LadyClaudeWorkerReplyServiceRecipeFunction:
+  LadyClaudeWorkerReplyRecipeFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
       EventInvokeConfig:
         MaximumRetryAttempts: 0
+      Environment:
+        Variables:
+          DISCORD_APPLICATION_ID: !Ref DiscordApplicationId
+          DISCORD_BOT_TOKEN: !Ref DiscordBotToken
+          DISCORD_CHANNEL_ID: !Ref DiscordChannelId
+          RECIPE_VECTORSTORE_BUCKET_NAME: !Ref RecipeVectorstoreBucketName
       Events:
         LadyClaudeSnsEvents:
           Type: SNS
@@ -122,9 +181,9 @@ Resources:
             FilterPolicy:
               command:
                 - recipe
-            Topic: !Ref LadyClaudeReplyServiceTopic
-      FunctionName: lady-claude-worker-reply-service-recipe-function
-      Handler: lady_claude.function.worker.reply_service.recipe.function.handler
+            Topic: !Ref LadyClaudeWorkerReplyTopic
+      FunctionName: lady-claude-worker-reply-recipe-function
+      Handler: lady_claude.function.worker.reply.recipe.function.handler
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.12
 
@@ -153,15 +212,7 @@ Resources:
                   - s3:PutObject
                   - sns:Publish
                   - sns:Subscribe
-                  - ssm:GetParameter
                   - ssm:GetCommandInvocation
                   - ssm:SendCommand
                 Resource: "*"
       RoleName: lady-claude-function-role
-
-  LadyClaudeReplyServiceTopicArnParameter:
-    Type: 'AWS::SSM::Parameter'
-    Properties:
-      Name: /LADY_CLAUDE/REPLY_SERVICE/TOPIC_ARN
-      Type: String
-      Value: !Ref LadyClaudeReplyServiceTopic

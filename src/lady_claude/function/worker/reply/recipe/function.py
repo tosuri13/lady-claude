@@ -1,4 +1,5 @@
 import json
+import os
 import pickle
 from typing import Dict, List, Tuple
 
@@ -8,7 +9,6 @@ from faiss import IndexFlatIP, read_index, write_index
 from lady_claude.common.ai.lady_claude import ask_lady
 from lady_claude.common.aws.bedrock import converse, embed
 from lady_claude.common.aws.s3 import download, upload
-from lady_claude.common.aws.ssm import get_parameter
 from lady_claude.common.discord import get_option_dict, respond_interaction
 from lady_claude.common.event.lady_claude import LadyClaudeCommand
 from lady_claude.common.faiss import delete
@@ -16,6 +16,8 @@ from lady_claude.common.util import get_lady_error_comment
 
 RECIPES_FAISS_FILE_NAME = "index.faiss"
 RECIPES_PICKLE_FILE_NAME = "recipes.pkl"
+
+RECIPE_VECTORSTORE_BUCKET_NAME = os.environ["RECIPE_VECTORSTORE_BUCKET_NAME"]
 
 
 def handler(event: dict, context: dict) -> None:
@@ -46,17 +48,14 @@ def handler(event: dict, context: dict) -> None:
 
 def _handle_request(request: dict) -> str:
     options = get_option_dict(request["data"]["options"])
-    bucket_name = get_parameter(
-        key="/LADY_CLAUDE/REPLY_SERVICE/RECIPE/VECTORSTORE_BUCKET_NAME"
-    )
 
     download(
-        bucket_name,
+        bucket_name=RECIPE_VECTORSTORE_BUCKET_NAME,
         object_name=RECIPES_FAISS_FILE_NAME,
         file_name=f"/tmp/{RECIPES_FAISS_FILE_NAME}",
     )
     download(
-        bucket_name,
+        bucket_name=RECIPE_VECTORSTORE_BUCKET_NAME,
         object_name=RECIPES_PICKLE_FILE_NAME,
         file_name=f"/tmp/{RECIPES_PICKLE_FILE_NAME}",
     )
@@ -73,7 +72,7 @@ def _handle_request(request: dict) -> str:
                 options["order"],
                 index,
                 recipes,
-                bucket_name,
+                bucket_name=RECIPE_VECTORSTORE_BUCKET_NAME,
             )
         case "answer":
             return _handle_ask_action(
@@ -88,7 +87,7 @@ def _handle_request(request: dict) -> str:
                 args["recipe_name"],
                 index,
                 recipes,
-                bucket_name,
+                bucket_name=RECIPE_VECTORSTORE_BUCKET_NAME,
             )
         case "none":
             return "レシピ関連の操作や質問以外の内容は受け付けられないですの...別の聞き方をしてくださるかしら?\n"
@@ -103,19 +102,19 @@ def _extact_action(order: str) -> Tuple[str, dict]:
     response = converse(
         message=order,
         system_message=(
-            f"あなたはとても優秀なアシスタントです。\n"
-            f"\n"
-            f"私はいまレシピ情報を利用してユーザの質問にRAGで回答するレシピヘルパーを作成しています。"
-            f"今からあなたには、ユーザから与えられたテキストを見てどのツールを実行するべきかを判断するタスクを行ってもらいます。\n"
-            f"与えられたツールを利用するべきではない、もしくは必要な引数を適切に渡すことができないと判断した場合は、ツール無理に利用するのではなく一般的な回答を返答してください。\n"
-            f"\n"
-            f"利用できるツールは以下の4つです。\n"
-            f"- `register`: ストアにレシピの情報を格納します。引数は不要です\n"
-            f"- `answer`: ストアからレシピの情報を内部で検索して、レシピに関する質問に回答する。引数には`ユーザの質問(question)`が必要です\n"
-            f"- `list`: ストアに格納されているレシピの一覧を表示します。引数は不要です\n"
-            f"- `delete`: ストアに格納されているレシピの情報を削除します。引数には`レシピ名(recipe_name)`が必要です\n"
-            f"\n"
-            f"それでは、以下にユーザから与えられたテキストを示します。"
+            "あなたはとても優秀なアシスタントです。\n"
+            "\n"
+            "私はいまレシピ情報を利用してユーザの質問にRAGで回答するレシピヘルパーを作成しています。"
+            "今からあなたには、ユーザから与えられたテキストを見てどのツールを実行するべきかを判断するタスクを行ってもらいます。\n"
+            "与えられたツールを利用するべきではない、もしくは必要な引数を適切に渡すことができないと判断した場合は、ツール無理に利用するのではなく一般的な回答を返答してください。\n"
+            "\n"
+            "利用できるツールは以下の4つです。\n"
+            "- `register`: ストアにレシピの情報を格納します。引数は不要です\n"
+            "- `answer`: ストアからレシピの情報を内部で検索して、レシピに関する質問に回答する。引数には`ユーザの質問(question)`が必要です\n"
+            "- `list`: ストアに格納されているレシピの一覧を表示します。引数は不要です\n"
+            "- `delete`: ストアに格納されているレシピの情報を削除します。引数には`レシピ名(recipe_name)`が必要です\n"
+            "\n"
+            "それでは、以下にユーザから与えられたテキストを示します。"
         ),
         tool_config={
             "toolChoice": {
@@ -207,12 +206,12 @@ def _handle_regist_action(
     response = converse(
         message=order,
         system_message=(
-            f"あなたはとても優秀なアシスタントです。\n"
-            f"\n"
-            f"今からあなたにレシピに関連する文章を与えるので、そこからレシピの名前や材料・手順を抽出し、ツールの引数として提供してもらいます。\n"
-            f"与えられた文章からレシピの情報を抽出することが困難な場合は、無理にツールの引数を埋めたりせずに、何が足りないかという理由を返答してください。\n"
-            f"\n"
-            f"それでは、以下にレシピに関連する文章を示します。"
+            "あなたはとても優秀なアシスタントです。\n"
+            "\n"
+            "今からあなたにレシピに関連する文章を与えるので、そこからレシピの名前や材料・手順を抽出し、ツールの引数として提供してもらいます。\n"
+            "与えられた文章からレシピの情報を抽出することが困難な場合は、無理にツールの引数を埋めたりせずに、何が足りないかという理由を返答してください。\n"
+            "\n"
+            "それでは、以下にレシピに関連する文章を示します。"
         ),
         tool_config={
             "toolChoice": {
@@ -340,13 +339,13 @@ def _handle_regist_action(
         )
     else:
         return (
-            f"あら?レシピに関する情報がうまく取得できなかったみたいですわ...\n"
-            f"わたくしへの命令に以下の情報が含まれているか確認してくださるかしら?\n"
-            f"```\n"
-            f"- レシピの名前\n"
-            f"- レシピの材料(数量なども含みますわ!!)\n"
-            f"- レシピの手順\n"
-            f"```"
+            "あら?レシピに関する情報がうまく取得できなかったみたいですわ...\n"
+            "わたくしへの命令に以下の情報が含まれているか確認してくださるかしら?\n"
+            "```\n"
+            "- レシピの名前\n"
+            "- レシピの材料(数量なども含みますわ!!)\n"
+            "- レシピの手順\n"
+            "```"
         )
 
 
@@ -363,13 +362,7 @@ def _handle_ask_action(
         relevant_recipes = [recipes[index] for index in valid_indices]
 
         recipes_info = "\n".join(
-            (
-                f"## レシピ名\n"
-                f"{recipe['name']}\n"
-                f"\n"
-                f"## レシピの手順\n"
-                f"{recipe['context']}\n"
-            )
+            (f"## レシピ名\n{recipe['name']}\n\n## レシピの手順\n{recipe['context']}\n")
             for recipe in relevant_recipes
         )
 
@@ -386,8 +379,8 @@ def _handle_ask_action(
         )
     else:
         return (
-            f"あら?わたくしまだ何もレシピを覚えていませんわ...\n"
-            f"わたくしに新しくレシピを覚えるよう命じてくださるかしら?"
+            "あら?わたくしまだ何もレシピを覚えていませんわ...\n"
+            "わたくしに新しくレシピを覚えるよう命じてくださるかしら?"
         )
 
 
@@ -404,8 +397,8 @@ def _handle_list_action(recipes: List[Dict]) -> str:
         )
     else:
         return (
-            f"あら?わたくしまだ何もレシピを覚えていませんわ...\n"
-            f"わたくしに新しくレシピを覚えるよう命じてくださるかしら?"
+            "あら?わたくしまだ何もレシピを覚えていませんわ...\n"
+            "わたくしに新しくレシピを覚えるよう命じてくださるかしら?"
         )
 
 
@@ -457,6 +450,6 @@ def _handle_delete_action(
         )
     else:
         return (
-            f"あら?わたくしまだ何もレシピを覚えていませんわ...\n"
-            f"わたくしに新しくレシピを覚えるよう命じてくださるかしら?"
+            "あら?わたくしまだ何もレシピを覚えていませんわ...\n"
+            "わたくしに新しくレシピを覚えるよう命じてくださるかしら?"
         )
