@@ -118,7 +118,7 @@ def _handle_start_action() -> str:
 
 def _handle_stop_action() -> str:
     response = describe_instance(
-        instance_id=MINECRAFT_BACKUP_BUCKET_NAME,
+        instance_id=MINECRAFT_INSTANCE_ID,
         region_name=MINECRAFT_INSTANCE_REGION,
     )
 
@@ -127,7 +127,7 @@ def _handle_stop_action() -> str:
 
     upload_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     command_id = send_command(
-        instance_id=MINECRAFT_BACKUP_BUCKET_NAME,
+        instance_id=MINECRAFT_INSTANCE_ID,
         commands=[
             "export HOME=/root",
             "source ~/.bashrc",
