@@ -3,8 +3,8 @@ import os
 
 import requests
 
-from src.lady_claude.common.event.discord import ApplicationCommandOptionType
-from src.lady_claude.common.event.lady_claude import LadyClaudeMinecraftOptionCommand
+from lady_claude.common.event.discord import ApplicationCommandOptionType
+from lady_claude.common.event.lady_claude import LadyClaudeMinecraftOptionCommand
 
 DISCORD_APPLICATION_ID = os.environ["DISCORD_APPLICATION_ID"]
 DISCORD_BOT_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
