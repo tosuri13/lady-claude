@@ -6,12 +6,12 @@ import boto3
 
 def converse(
     message: str,
-    model_id: str = "anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model_id: str = "us.anthropic.claude-sonnet-4-20250514-v1:0",
     temperature: float = 0.1,
     system_message: str | None = None,
     tool_config: Dict | None = None,
 ) -> dict:
-    bedrock_client = boto3.client("bedrock-runtime", region_name="us-west-2")
+    bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
     params = {
         "modelId": model_id,
