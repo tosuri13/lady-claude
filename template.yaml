@@ -67,7 +67,7 @@ Resources:
       Runtime: python3.12
 
   # NOTE: 2024年9月1日からConnpassのスクレイピング禁止が明記されるため、一旦Connpassイベント通知機能も停止
-  # LadyClaudeWorkerNotifyConnpassFunction:
+  # LadyClaudeWorkerNotificationConnpassFunction:
   #   Type: AWS::Serverless::Function
   #   Properties:
   #     CodeUri: src
@@ -83,13 +83,13 @@ Resources:
   #         Type: Schedule
   #         Properties:
   #           Schedule: "cron(0 23 ? * 7 *)"
-  #           Name: lady-claude-worker-notify-connpass-rule
-  #     FunctionName: lady-claude-worker-notify-connpass-function
-  #     Handler: lady_claude.function.worker.notify.connpass.function.handler
+  #           Name: lady-claude-worker-notification-connpass-rule
+  #     FunctionName: lady-claude-worker-notification-connpass-function
+  #     Handler: lady_claude.function.worker.notification.connpass.function.handler
   #     Role: !GetAtt LadyClaudeFunctionRole.Arn
   #     Runtime: python3.12
 
-  LadyClaudeWorkerNotifyGarbageFunction:
+  LadyClaudeWorkerNotificationGarbageFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src
@@ -105,9 +105,9 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: "cron(0 14 ? * 1,2,4,5 *)"
-            Name: lady-claude-worker-notify-garbage-rule
-      FunctionName: lady-claude-worker-notify-garbage-function
-      Handler: lady_claude.function.worker.notify.garbage.function.handler
+            Name: lady-claude-worker-notification-garbage-rule
+      FunctionName: lady-claude-worker-notification-garbage-function
+      Handler: lady_claude.function.worker.notification.garbage.function.handler
       Role: !GetAtt LadyClaudeFunctionRole.Arn
       Runtime: python3.12
 
