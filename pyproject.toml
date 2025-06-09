@@ -8,7 +8,7 @@ dependencies = [
     "beautifulsoup4>=4.12.3",
     "boto3>=1.36.11",
     "faiss-cpu==1.9.0",
-    "numpy>=2.2.2",
+    "numpy==2.2.6",
     "pynacl>=1.5.0",
     "requests>=2.32.3",
 ]
